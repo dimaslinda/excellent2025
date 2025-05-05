@@ -42,4 +42,9 @@ class GeneralControllers extends Controller
     {
         return view('webinar');
     }
+
+    public function ecourse()
+    {
+        return view('ecourse');
+    }
 }

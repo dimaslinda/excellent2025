@@ -37,4 +37,9 @@ class GeneralControllers extends Controller
     {
         return view('modul');
     }
+
+    public function webinar()
+    {
+        return view('webinar');
+    }
 }

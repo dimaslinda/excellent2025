@@ -95,3 +95,50 @@
 .button-prev2 {
     left: 0px;
 }
+
+/* swiper testimoni */
+.button-next3,
+.button-prev3 {
+    color: white;
+    position: absolute;
+    top: 50%;
+    width: 60px;
+    height: 60px;
+    border-radius: 100%;
+    background-color: var(--color-tombol);
+    cursor: pointer;
+    background-size: contain;
+    background-repeat: no-repeat;
+    z-index: 10;
+}
+
+.button-next3 {
+    right: 0px;
+}
+
+.button-prev3we {
+    left: 0px;
+}
+
+.paginat2 {
+    justify-content: center;
+    margin-top: 40px;
+    padding-right: 120px;
+    padding-bottom: 10px;
+}
+
+.paginat2 .swiper-pagination-bullet {
+    padding: 5px 10px;
+    width: 100px;
+    height: 10px;
+    text-align: center;
+    font-size: 12px;
+    color: #000;
+    border-radius: 2%;
+    opacity: 1;
+    background: #d9d9d9;
+}
+.paginat2 .swiper-pagination-bullet-active {
+    color: #d9d9d9;
+    background: var(--color-headerbanner);
+}

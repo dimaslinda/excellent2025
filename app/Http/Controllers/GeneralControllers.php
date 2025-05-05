@@ -27,4 +27,14 @@ class GeneralControllers extends Controller
             'responselimit' => $this->fetchPosts(4),
         ]);
     }
+
+    public function inhouse()
+    {
+        return view('inhouse');
+    }
+
+    public function modul()
+    {
+        return view('modul');
+    }
 }

@@ -142,3 +142,23 @@
     color: #d9d9d9;
     background: var(--color-headerbanner);
 }
+
+.mySwipers .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+.mySwipers .swiper-slide-thumb-active {
+    opacity: 1;
+}
+
+.mySwipers2 .swiper-slide {
+    width: 25%;
+    height: 100%;
+    opacity: 0.4;
+}
+
+.mySwipers2 .swiper-slide-thumb-active {
+    opacity: 1;
+}

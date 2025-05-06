@@ -47,24 +47,46 @@
                         <ul class="py-2 text-sm font-bold" aria-labelledby="dropdownLargeButton">
                             <li>
                                 <a href="/inhouse"
-                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('inhouse') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">In
-                                    House Training</a>
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('inhouse') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    In House Training
+                                </a>
                             </li>
                             <li>
                                 <a href="/modul"
-                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('modul') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">Modul
-                                    Ajar</a>
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('modul') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    Modul Ajar
+                                </a>
                             </li>
                             <li>
                                 <a href="/webinar"
-                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('webinar') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">Webinar</a>
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('webinar') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    Webinar
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/ecourse"
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('ecourse') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    e-course
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/bootcamp"
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('bootcamp') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    bootcamp
+                                </a>
+                            </li>
+                            <li>
+                                <a href="/eskul"
+                                    class="block px-4 py-2 hover:bg-tombol hover:text-white {{ route('eskul') == url()->current() ? 'text-white bg-tombol' : 'text-primary font-bold' }}">
+                                    ekskul
+                                </a>
                             </li>
                         </ul>
                     </div>
                 </li>
                 <li>
-                    <a href="#modul"
-                        class="block py-2 px-3 text-white md:text-cardhitam capitalize rounded-sm hover:bg-tombol hover:text-white md:hover:bg-transparent md:hover:text-tombol">
+                    <a href="/galeri"
+                        class="block py-2 px-3 {{ route('galeri') == url()->current() ? 'md:text-tombol text-white bg-tombol' : 'md:text-cardhitam text-white' }} hover:bg-tombol hover:text-white md:hover:bg-transparent md:border-0 md:hover:text-tombol rounded-sm md:bg-transparent md:text-cardhitam capitalize">
                         gallery
                     </a>
                 </li>

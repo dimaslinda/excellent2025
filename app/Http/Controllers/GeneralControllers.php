@@ -47,4 +47,19 @@ class GeneralControllers extends Controller
     {
         return view('ecourse');
     }
+
+    public function bootcamp()
+    {
+        return view('bootcamp');
+    }
+
+    public function eskul()
+    {
+        return view('eskul');
+    }
+
+    public function galeri()
+    {
+        return view('gallery');
+    }
 }

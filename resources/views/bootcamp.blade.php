@@ -2,12 +2,12 @@
 @section('banner')
     {{-- banner --}}
     <section
-        class="py-20 md:py-32 lg:pt-52 relative z-10 bg-[url('../../public/img/general/bg-ecourse.webp')] bg-no-repeat bg-cover bg-bottom">
+        class="py-20 md:py-32 lg:pt-52 relative z-10 bg-[url('../../public/img/general/bg-bootcamp.webp')] bg-no-repeat bg-cover">
         <div class="py-8 px-4 mx-auto max-w-screen-xl text-center">
             <h1 class="md:mb-23 font-bold leading-none text-logo tracking-wide">
                 <div data-aos="fade-down"
                     class="text-white bg-[rgba(255,_180,_63,_0.64)] rounded-lg py-4 [text-shadow:0px_4px_4px_rgba(0,_0,_0,_0.55)] uppercase text-3xl md:text-6xl xl:text-7xl 2xl:text-8xl">
-                    e-course
+                    bootcamp
                 </div>
             </h1>
         </div>

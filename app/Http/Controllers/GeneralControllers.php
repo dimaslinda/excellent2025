@@ -62,4 +62,9 @@ class GeneralControllers extends Controller
     {
         return view('gallery');
     }
+
+    public function registrasi()
+    {
+        return view('registrasi');
+    }
 }

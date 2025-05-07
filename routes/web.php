@@ -11,3 +11,4 @@ Route::get('/ecourse', [GeneralControllers::class, 'ecourse'])->name('ecourse');
 Route::get('/bootcamp', [GeneralControllers::class, 'bootcamp'])->name('bootcamp');
 Route::get('/eskul', [GeneralControllers::class, 'eskul'])->name('eskul');
 Route::get('/galeri', [GeneralControllers::class, 'galeri'])->name('galeri');
+Route::get('/registrasi', [GeneralControllers::class, 'registrasi'])->name('registrasi');

@@ -14,3 +14,4 @@ Route::get('/eskul', [GeneralControllers::class, 'eskul'])->name('eskul');
 Route::get('/galeri', [GeneralControllers::class, 'galeri'])->name('galeri');
 Route::get('/registrasi', [GeneralControllers::class, 'registrasi'])->name('registrasi');
 Route::get('/assessment', [AssessmentController::class, 'index'])->name('assessment');
+Route::get('/hasil', [AssessmentController::class, 'hasil'])->name('hasil');

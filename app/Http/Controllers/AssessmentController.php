@@ -17,4 +17,9 @@ class AssessmentController extends Controller
         // Simpan data ke database atau lakukan validasi
         return redirect()->back()->with('success', 'Jawaban Anda berhasil dikirim!');
     }
+
+    public function hasil()
+    {
+        return view('hasil');
+    }
 }

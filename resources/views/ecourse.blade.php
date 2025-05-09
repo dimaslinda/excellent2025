@@ -18,7 +18,36 @@
     <section class="py-10">
         <div class="container mx-auto p-6">
             <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5 place-items-center">
-                <div
+                @forelse ($ecourse as $item)
+                    <div
+                        class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
+                        <div class="max-h-[250px] overflow-hidden">
+                            <img src="{{ $item->getFirstMediaUrl('ecourse') }}" class="h-full w-full object-cover"
+                                alt="modul">
+                        </div>
+                        <div class="p-6">
+                            <div
+                                class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
+                                {{ $item->name }}
+                            </div>
+                            <div class="font-bold font-poppins mb-5 text-2xl">
+                                @currency($item->price)
+                            </div>
+                            <div class="flex justify-center w-full text-center group">
+                                <a href="{{ $item->link }}" target="_blank"
+                                    class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
+                                    daftar
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                @empty
+                    <div class="col-span-full text-center">
+                        <h2 class="text-2xl font-bold text-gray-500">Mohon maaf, belum ada data E-Course yang tersedia</h2>
+                        <p class="text-gray-400 mt-2">Silakan cek kembali di lain waktu</p>
+                    </div>
+                @endforelse
+                {{-- <div
                     class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
                     <div class="max-h-[250px] overflow-hidden">
                         <img src="{{ asset('img/general/excellentteach-1.webp') }}" class="h-full w-full object-cover"
@@ -154,7 +183,7 @@
                             </a>
                         </div>
                     </div>
-                </div>
+                </div> --}}
 
             </div>
         </div>

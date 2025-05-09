@@ -2,6 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Bootcamp;
+use App\Models\Ecourse;
+use App\Models\Modul;
+use App\Models\Webinar;
 use GuzzleHttp\Client;
 use Illuminate\Http\Request;
 
@@ -35,22 +39,26 @@ class GeneralControllers extends Controller
 
     public function modul()
     {
-        return view('modul');
+        $modulAjar = Modul::with('media')->get();
+        return view('modul', compact('modulAjar'));
     }
 
     public function webinar()
     {
-        return view('webinar');
+        $webinar = Webinar::with('media')->get();
+        return view('webinar', compact('webinar'));
     }
 
     public function ecourse()
     {
-        return view('ecourse');
+        $ecourse = Ecourse::with('media')->get();
+        return view('ecourse', compact('ecourse'));
     }
 
     public function bootcamp()
     {
-        return view('bootcamp');
+        $bootcamp = Bootcamp::with('media')->get();
+        return view('bootcamp', compact('bootcamp'));
     }
 
     public function eskul()

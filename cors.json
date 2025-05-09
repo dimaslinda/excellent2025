@@ -1,0 +1,8 @@
+[
+    {
+        "origin": ["http://excellent2025.test"],
+        "method": ["GET", "HEAD", "OPTIONS"],
+        "responseHeader": ["Content-Type"],
+        "maxAgeSeconds": 3600
+    }
+]

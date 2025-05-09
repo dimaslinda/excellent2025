@@ -34,7 +34,7 @@
                 </li>
                 <li>
                     <button id="dropdownNavbarLink" data-dropdown-toggle="dropdownNavbar"
-                        class="flex items-center justify-between w-full font-poppins cursor-pointer px-3 py-2 capitalize rounded md:bg-transparent {{ route('inhouse') == url()->current() || route('modul') == url()->current() || route('webinar') == url()->current() ? 'md:text-tombol text-white bg-tombol' : 'text-white md:text-cardhitam' }}  hover:bg-tombol hover:text-white md:hover:bg-transparent md:border-0 md:hover:text-tombol">
+                        class="flex items-center justify-between w-full font-poppins cursor-pointer px-3 py-2 capitalize rounded md:bg-transparent {{ route('inhouse') == url()->current() || route('modul') == url()->current() || route('webinar') == url()->current() || route('ecourse') == url()->current() || route('bootcamp') == url()->current() || route('eskul') == url()->current() ? 'md:text-tombol text-white bg-tombol' : 'text-white md:text-cardhitam' }}  hover:bg-tombol hover:text-white md:hover:bg-transparent md:border-0 md:hover:text-tombol">
                         Layanan Kami
                         <svg class="w-2.5 h-2.5 ms-2.5" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
                             fill="none" viewBox="0 0 10 6">

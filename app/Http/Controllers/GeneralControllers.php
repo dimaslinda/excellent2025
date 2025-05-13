@@ -9,6 +9,8 @@ use App\Models\Ecourse;
 use App\Models\Gallery;
 use App\Models\Webinar;
 use App\Models\Bootcamp;
+use App\Models\Inhouse;
+use App\Models\Testimoni;
 use Illuminate\Http\Request;
 
 class GeneralControllers extends Controller
@@ -26,17 +28,26 @@ class GeneralControllers extends Controller
         return array_slice(json_decode($response->getBody()), 0, $limit);
     }
 
+
     public function index()
     {
+        $testimoni = Testimoni::with('media')->get();
+        $gallery = Gallery::with('media')->where('publish', 1)->orderBy('id', 'desc')->get();
         return view('index', [
             'responselates' => $this->fetchPosts(1),
             'responselimit' => $this->fetchPosts(4),
+            'testimoni' => $testimoni,
+            'gallery' => $gallery
         ]);
     }
 
     public function inhouse()
     {
-        return view('inhouse');
+        $inhouse = Inhouse::with('media')
+            ->orderByRaw('CASE WHEN publish = 1 THEN 0 ELSE 1 END')
+            ->orderBy('id', 'desc')
+            ->get();
+        return view('inhouse', compact('inhouse'));
     }
 
     public function modul()

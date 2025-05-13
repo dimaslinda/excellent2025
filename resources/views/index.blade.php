@@ -2,6 +2,9 @@
 @section('kepala')
     <!-- Link Swiper's CSS -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+    @php
+        use Spatie\MediaLibrary\MediaCollections\Models\Media;
+    @endphp
 @endsection
 @section('banner')
     {{-- banner --}}
@@ -92,7 +95,51 @@
                 <!-- Swiper -->
                 <div class="swiper mySwiper">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
+                        @forelse ($gallery as $item)
+                            <div class="swiper-slide">
+                                <div class="flex flex-col lg:flex-row mt-10 gap-5">
+                                    <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
+                                        <div
+                                            class="flex flex-col items-center self-center rounded-xl max-w-xl md:h-[550px]">
+                                            <img src="{{ $item->getFirstMediaUrl('gallerythumb') }}"
+                                                class="w-full h-full object-cover rounded-xl" alt="portofolio">
+                                        </div>
+                                    </div>
+                                    <div class="flex-1 flex justify-center w-full py-6">
+                                        <div
+                                            class="flex flex-col justify-center items-center lg:items-start lg:justify-start gap-6 w-full">
+                                            <div
+                                                class="flex flex-row justify-center lg:justify-start w-full gap-6 max-w-xl">
+                                                @php
+                                                    $collection = Media::all()
+                                                        ->where('model_id', $item->id)
+                                                        ->where('collection_name', 'another_portofolio')
+                                                        ->take(2);
+                                                @endphp
+                                                @foreach ($collection as $thumb)
+                                                    <div class="flex flex-col items-center self-center rounded-xl md:h-70">
+                                                        <img src="{{ $thumb->original_url }}"
+                                                            class="w-full h-full object-cover rounded-xl" alt="portofolio">
+                                                    </div>
+                                                @endforeach
+                                            </div>
+
+                                            <div
+                                                class="bg-white rounded-lg font-poppins p-4 md:p-10 min-h-52 max-w-xl flex flex-col justify-between shadow-2xl drop-shadow-2xl">
+                                                <div class="text-cardhitam font-bold text-3xl md:text-4xl line-clamp-2">
+                                                    {{ $item->name }}
+                                                </div>
+                                                <div class="text-lg">
+                                                    {{ $item->sekolah }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        @empty
+                        @endforelse
+                        {{-- <div class="swiper-slide">
                             <div class="flex flex-col lg:flex-row mt-10 gap-5">
                                 <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
                                     <div class="flex flex-col items-center self-center rounded-xl max-w-xl">
@@ -235,7 +282,7 @@
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </div> --}}
                     </div>
                     <div class="paginat hidden md:flex"></div>
                     <div class="button-next justify-center items-center self-center p-2 hidden md:flex">
@@ -393,122 +440,61 @@
                 <!-- Swiper -->
                 <div class="swiper mySwiper3">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="flex flex-row gap-2">
-                                <div
-                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                    <div class="rounded-full w-40 h-40 mb-5">
-                                        <img src="{{ asset('img/general/riska.webp') }}"
-                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni">
+                        @forelse ($testimoni as $item)
+                            <div class="swiper-slide">
+                                <div class="flex flex-row gap-2">
+                                    <div
+                                        class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
+                                        <div class="rounded-full w-40 h-40 mb-5">
+                                            <img src="{{ $item->getFirstMediaUrl('testimoni') }}"
+                                                class="rounded-full w-40 h-40 object-cover" alt="testimoni">
+                                        </div>
+                                        <div class="font-poppins text-center">
+                                            <div class="font-bold text-3xl text-footer">
+                                                {{ $item->name }}
+                                            </div>
+                                            <div class="text-lg text-cardhitam mb-5">
+                                                {{ $item->jabatan }}
+                                            </div>
+                                            <div class="text-justify italic text-cardhitam">
+                                                {!! $item->testimoni !!}
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="font-poppins text-center">
-                                        <div class="font-bold text-3xl text-footer">
-                                            Riska Tania, SE.M.A.B.
-                                        </div>
-                                        <div class="text-lg text-cardhitam mb-5">
-                                            Kepala Bidang Pendidikan Dasar Disdikporapar Kab. Mempawah
-                                        </div>
-                                        <div class="text-justify italic text-cardhitam">
-                                            Terima kasih kepada Excellent Team atas pelatihan dan workshop yang membuka
-                                            wawasan guru-guru Kabupaten Mempawah tentang pemanfaatan AI, sehingga
-                                            membantu meringankan tugas administrasi dan meningkatkan kreativitas dalam
-                                            mengajar.
-                                        </div>
+                                    <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
+                                        <img src="{{ asset('img/general/testimoni.webp') }}"
+                                            class="object-cover w-full h-full" alt="testimoni">
                                     </div>
-                                </div>
-                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                    <img src="{{ asset('img/general/testimoni.webp') }}"
-                                        class="object-cover w-full h-full" alt="testimoni">
                                 </div>
                             </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-row gap-2">
-                                <div
-                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                    <div class="rounded-full w-40 h-40 mb-5">
-                                        <img src="{{ asset('img/general/juhairiyah.webp') }}"
-                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                    </div>
-                                    <div class="font-poppins text-center">
-                                        <div class="font-bold text-3xl text-footer">
-                                            Juhairiyah, S. Pd, M. Pd
+                        @empty
+                            <div class="swiper-slide">
+                                <div class="flex flex-row gap-2">
+                                    <div
+                                        class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
+                                        <div class="rounded-full w-40 h-40 mb-5">
+                                            <img src="{{ asset('img/general/default-profile.webp') }}"
+                                                class="rounded-full w-40 h-40 object-cover" alt="testimoni default">
                                         </div>
-                                        <div class="text-lg text-cardhitam mb-5">
-                                            Kepala UPT SDN Poris Pelawad 2
-                                        </div>
-                                        <div class="text-justify italic text-cardhitam">
-                                            Bekerjasama dengan Excellent Team dalam pelatihan guru sangat luar biasa.
-                                            Materi pelatihan berbasis teknologi disampaikan secara profesional dan
-                                            benar-benar membantu guru dalam menyiapkan perangkat ajar dan media
-                                            pembelajaran.
+                                        <div class="font-poppins text-center">
+                                            <div class="font-bold text-3xl text-footer">
+                                                Belum Ada Data
+                                            </div>
+                                            <div class="text-lg text-cardhitam mb-5">
+                                                Testimoni
+                                            </div>
+                                            <div class="text-justify italic text-cardhitam">
+                                                Belum ada data testimoni yang tersedia saat ini
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                    <img src="{{ asset('img/general/testimoni.webp') }}"
-                                        class="object-cover w-full h-full" alt="testimoni">
+                                    <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
+                                        <img src="{{ asset('img/general/testimoni.webp') }}"
+                                            class="object-cover w-full h-full" alt="testimoni">
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-row gap-2">
-                                <div
-                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                    <div class="rounded-full w-40 h-40 mb-5">
-                                        <img src="{{ asset('img/general/riska.webp') }}"
-                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                    </div>
-                                    <div class="font-poppins text-center">
-                                        <div class="font-bold text-3xl text-footer">
-                                            Riska Tania, SE.M.A.B.
-                                        </div>
-                                        <div class="text-lg text-cardhitam mb-5">
-                                            Kepala Bidang Pendidikan Dasar Disdikporapar Kab. Mempawah
-                                        </div>
-                                        <div class="text-justify italic text-cardhitam">
-                                            Terima kasih kepada Excellent Team atas pelatihan dan workshop yang membuka
-                                            wawasan guru-guru Kabupaten Mempawah tentang pemanfaatan AI, sehingga
-                                            membantu meringankan tugas administrasi dan meningkatkan kreativitas dalam
-                                            mengajar.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                    <img src="{{ asset('img/general/testimoni.webp') }}"
-                                        class="object-cover w-full h-full" alt="testimoni">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-row gap-2">
-                                <div
-                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                    <div class="rounded-full w-40 h-40 mb-5">
-                                        <img src="{{ asset('img/general/juhairiyah.webp') }}"
-                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                    </div>
-                                    <div class="font-poppins text-center">
-                                        <div class="font-bold text-3xl text-footer">
-                                            Juhairiyah, S. Pd, M. Pd
-                                        </div>
-                                        <div class="text-lg text-cardhitam mb-5">
-                                            Kepala UPT SDN Poris Pelawad 2
-                                        </div>
-                                        <div class="text-justify italic text-cardhitam">
-                                            Bekerjasama dengan Excellent Team dalam pelatihan guru sangat luar biasa.
-                                            Materi pelatihan berbasis teknologi disampaikan secara profesional dan
-                                            benar-benar membantu guru dalam menyiapkan perangkat ajar dan media
-                                            pembelajaran.
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                    <img src="{{ asset('img/general/testimoni.webp') }}"
-                                        class="object-cover w-full h-full" alt="testimoni">
-                                </div>
-                            </div>
-                        </div>
+                        @endforelse
                     </div>
                     <div class="paginat2 hidden md:flex"></div>
                     <div class="button-next3 justify-center items-center self-center p-2 hidden md:flex">

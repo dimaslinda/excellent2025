@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Bootcamp;
 use App\Models\Ecourse;
+use App\Models\Gallery;
 use App\Models\Modul;
 use App\Models\Webinar;
 use GuzzleHttp\Client;
@@ -68,7 +69,11 @@ class GeneralControllers extends Controller
 
     public function galeri()
     {
-        return view('gallery');
+        $gallery = Gallery::with('media')
+            ->where('publish', 1)
+            ->orderBy('id', 'desc')
+            ->paginate(50);
+        return view('gallery', compact('gallery'));
     }
 
     public function registrasi()

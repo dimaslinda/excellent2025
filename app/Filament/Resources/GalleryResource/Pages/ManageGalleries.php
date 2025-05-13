@@ -2,8 +2,9 @@
 
 namespace App\Filament\Resources\GalleryResource\Pages;
 
-use App\Filament\Resources\GalleryResource;
 use Filament\Actions;
+use Filament\Notifications\Notification;
+use App\Filament\Resources\GalleryResource;
 use Filament\Resources\Pages\ManageRecords;
 
 class ManageGalleries extends ManageRecords
@@ -13,7 +14,23 @@ class ManageGalleries extends ManageRecords
     protected function getHeaderActions(): array
     {
         return [
-            Actions\CreateAction::make(),
+            Actions\CreateAction::make()
+                ->label('Tambah Modul')
+                ->successNotification(null)
+                ->after(function ($record) {
+                    Notification::make()
+                        ->title('Saved')
+                        ->color('success')
+                        ->body("Gallery {$record->name} berhasil ditambahkan!")
+                        ->success()
+                        ->duration(3000)
+                        ->send();
+                }),
         ];
+    }
+
+    public function getTitle(): string
+    {
+        return 'Data Gallery';
     }
 }

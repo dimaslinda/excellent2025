@@ -2,12 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Bootcamp;
+use App\Models\Modul;
+use App\Models\Ekskul;
+use GuzzleHttp\Client;
 use App\Models\Ecourse;
 use App\Models\Gallery;
-use App\Models\Modul;
 use App\Models\Webinar;
-use GuzzleHttp\Client;
+use App\Models\Bootcamp;
 use Illuminate\Http\Request;
 
 class GeneralControllers extends Controller
@@ -64,7 +65,8 @@ class GeneralControllers extends Controller
 
     public function eskul()
     {
-        return view('eskul');
+        $ekskul = Ekskul::with('media')->orderBy('id', 'desc')->get();
+        return view('eskul', compact('ekskul'));
     }
 
     public function galeri()

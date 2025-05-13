@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Filament\Resources\WebinarResource\Pages;
+namespace App\Filament\Resources\EkskulResource\Pages;
 
 use Filament\Actions;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\WebinarResource;
+use App\Filament\Resources\EkskulResource;
 use Filament\Resources\Pages\ManageRecords;
 
-class ManageWebinars extends ManageRecords
+class ManageEkskuls extends ManageRecords
 {
-    protected static string $resource = WebinarResource::class;
+    protected static string $resource = EkskulResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
-                ->label('Tambah Webinar')
+                ->label('Tambah Ekskul')
                 ->successNotification(null)
                 ->after(function ($record) {
                     Notification::make()
                         ->title('Saved')
                         ->color('success')
-                        ->body("Webinar {$record->name} berhasil ditambahkan!")
+                        ->body("Ekskul {$record->name} berhasil ditambahkan!")
                         ->success()
                         ->duration(3000)
                         ->send();
@@ -31,6 +31,6 @@ class ManageWebinars extends ManageRecords
 
     public function getTitle(): string
     {
-        return 'Data Webinar';
+        return 'Data Ekskul';
     }
 }

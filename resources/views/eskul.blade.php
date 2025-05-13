@@ -21,67 +21,36 @@
 @section('konten')
     <section>
         <div class="container mx-auto p-6">
-            <div class="flex flex-col-reverse xl:flex-row gap-5 md:p-10">
-                <div class="md:flex-1 mb-12 xl:mb-0 xl:pr-10">
-                    <h2 class="font-poppins font-bold text-xl lg:text-3xl mb-5">
-                        Content Creator
-                    </h2>
-                    <div class="font-poppins text-cardhitam text-justify">
-                        Ekstrakurikuler Content Creator hadir sebagai wadah bagi peserta didik untuk mengembangkan
-                        kreativitas, keterampilan komunikasi, dan literasi digital melalui pembuatan konten yang inspiratif,
-                        edukatif, dan menarik. Di era media sosial dan platform digital, kemampuan menciptakan konten
-                        menjadi salah satu skill penting yang relevan dengan dunia industri kreatif saat ini. Melalui
-                        kegiatan ini, siswa akan belajar merancang ide konten, menulis naskah, merekam video, mengedit
-                        gambar dan video, hingga memahami cara membangun personal branding secara positif. Aktivitas
-                        dilakukan secara kolaboratif dan menyenangkan, dengan menyesuaikan tren serta nilai-nilai pendidikan
-                        yang membangun karakter.
+            @forelse ($ekskul as $item)
+                <div class="flex flex-col-reverse xl:flex-row gap-5 md:p-10">
+                    <div class="md:flex-1 mb-12 xl:mb-0 xl:pr-10">
+                        <h2 class="font-poppins font-bold text-xl lg:text-3xl mb-5">
+                            {{ $item->name }}
+                        </h2>
+                        <div class="font-poppins text-cardhitam text-justify">
+                            {!! $item->deskripsi !!}
+                        </div>
+                        <div class="flex justify-center text-center mt-5 uppercase font-bold group">
+                            <a href="https://wa.me/+6285213298462" target="_blank"
+                                class="text-white font-poppins bg-headerbanner py-3 rounded-full w-full group-hover:scale-105 transition ease-in-out duration-300">
+                                daftarkan sekolahmu
+                            </a>
+                        </div>
                     </div>
-                    <div class="flex justify-center text-center mt-5 uppercase font-bold group">
-                        <a href="#"
-                            class="text-white font-poppins bg-headerbanner py-3 rounded-full w-full group-hover:scale-105 transition ease-in-out duration-300">
-                            daftarkan sekolahmu
-                        </a>
-                    </div>
-                </div>
-                <div class="flex-1 relative rounded-br-3xl md:rounded-br-[65px] max-h-[400px]">
-                    <div class="absolute z-10 -top-6 md:-top-10 -left-10">
-                        <img src="{{ asset('img/general/mask.png') }}" class="w-26 md:w-full" alt="mask">
-                    </div>
-                    <img src="{{ asset('img/general/ekskul-1.webp') }}"
-                        class="w-full h-full object-cover rounded-br-3xl md:rounded-br-[65px] max-h-[400px]" alt="iht">
-                </div>
-            </div>
-
-            <div class="flex flex-col-reverse xl:flex-row gap-5 md:p-10">
-                <div class="md:flex-1 mb-12 xl:mb-0 xl:pr-10">
-                    <h2 class="font-poppins font-bold text-xl lg:text-3xl mb-5">
-                        Digital Marketing
-                    </h2>
-                    <div class="font-poppins text-cardhitam text-justify">
-                        Ekstrakurikuler Digital Marketing dirancang untuk membekali peserta didik dengan pengetahuan dan
-                        keterampilan dasar di bidang pemasaran digital yang semakin dibutuhkan di era teknologi saat ini.
-                        Melalui kegiatan ini, siswa akan belajar bagaimana mempromosikan produk, ide, atau brand secara
-                        kreatif menggunakan berbagai platform digital seperti media sosial, website, hingga marketplace.
-                        Kegiatan ini tidak hanya mengasah kemampuan berpikir strategis dan kreatif, tetapi juga memberikan
-                        pengalaman nyata dalam merancang kampanye pemasaran, membuat konten promosi, dan menganalisis
-                        performa digital secara sederhana. Cocok untuk siswa yang tertarik pada bisnis, komunikasi, desain,
-                        atau teknologi digital.
-                    </div>
-                    <div class="flex justify-center text-center mt-5 uppercase font-bold group">
-                        <a href="#"
-                            class="text-white font-poppins bg-headerbanner py-3 rounded-full w-full group-hover:scale-105 transition ease-in-out duration-300">
-                            daftarkan sekolahmu
-                        </a>
+                    <div class="flex-1 relative rounded-br-3xl md:rounded-br-[65px] max-h-[400px]">
+                        <div class="absolute z-10 -top-6 md:-top-10 -left-10">
+                            <img src="{{ asset('img/general/mask.png') }}" class="w-26 md:w-full" alt="mask">
+                        </div>
+                        <img src="{{ $item->getFirstMediaUrl('ekskul') }}"
+                            class="w-full h-full object-cover rounded-br-3xl md:rounded-br-[65px] max-h-[400px]"
+                            alt="iht">
                     </div>
                 </div>
-                <div class="flex-1 relative rounded-br-3xl md:rounded-br-[65px] max-h-[400px]">
-                    <div class="absolute z-10 -top-6 md:-top-10 -left-10">
-                        <img src="{{ asset('img/general/mask.png') }}" class="w-26 md:w-full" alt="mask">
-                    </div>
-                    <img src="{{ asset('img/general/iht-9.webp') }}"
-                        class="w-full h-full object-cover rounded-br-3xl md:rounded-br-[65px] max-h-[400px]" alt="iht">
+            @empty
+                <div class="flex flex-col items-center justify-center min-h-[400px]">
+                    <div class="font-poppins font-bold text-2xl text-footer mt-5 text-center">Tidak ada data ekskul</div>
                 </div>
-            </div>
+            @endforelse
 
         </div>
     </section>

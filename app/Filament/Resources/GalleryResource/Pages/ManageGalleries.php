@@ -15,7 +15,7 @@ class ManageGalleries extends ManageRecords
     {
         return [
             Actions\CreateAction::make()
-                ->label('Tambah Modul')
+                ->label('Tambah Gallery')
                 ->successNotification(null)
                 ->after(function ($record) {
                     Notification::make()

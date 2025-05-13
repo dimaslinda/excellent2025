@@ -4,32 +4,33 @@ namespace App\Filament\Resources;
 
 use Filament\Forms;
 use Filament\Tables;
-use App\Models\Webinar;
+use App\Models\Ekskul;
+use Filament\Forms\Set;
 use Filament\Forms\Form;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 use Filament\Resources\Resource;
 use Filament\Forms\Components\Card;
-use Filament\Forms\Components\Toggle;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Forms\Components\TextInput;
 use Filament\Notifications\Notification;
-use Filament\Tables\Columns\ToggleColumn;
+use Filament\Forms\Components\RichEditor;
 use Illuminate\Database\Eloquent\Builder;
-use App\Filament\Resources\WebinarResource\Pages;
+use App\Filament\Resources\EkskulResource\Pages;
 use Illuminate\Database\Eloquent\SoftDeletingScope;
 use Filament\Tables\Columns\SpatieMediaLibraryImageColumn;
+use App\Filament\Resources\EkskulResource\RelationManagers;
 use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
-use App\Filament\Resources\WebinarResource\RelationManagers;
 
-class WebinarResource extends Resource
+class EkskulResource extends Resource
 {
-    protected static ?string $model = Webinar::class;
+    protected static ?string $model = Ekskul::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-video-camera';
+    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
 
     protected static ?string $navigationGroup = 'Layanan';
 
-    protected static ?string $navigationLabel = 'Data Webinar';
+    protected static ?string $navigationLabel = 'Data Ekskul';
 
     public static function form(Form $form): Form
     {
@@ -37,20 +38,30 @@ class WebinarResource extends Resource
             ->schema([
                 Card::make()->schema([
                     TextInput::make('name')
-                        ->label('Nama Webinar')
-                        ->placeholder('Nama Webinar')
+                        ->label('Nama Ekskul')
+                        ->placeholder('Nama Ekskul')
+                        ->autocapitalize('words')
+                        ->live(debounce: 500)
+                        ->afterStateUpdated(fn(Set $set, ?string $state) => $set('slug', Str::slug($state)))
                         ->required(),
-                    TextInput::make('link')
-                        ->label('Link Gform')
-                        ->placeholder('Link Gform')
+                    TextInput::make('slug')
+                        ->label('Slug')
+                        ->placeholder('Slug')
+                        ->unique(ignorable: fn($record) => $record)
+                        ->readOnly()
+                        ->required(),
+                    RichEditor::make('deskripsi')
+                        ->label('Deskripsi Ekskul')
+                        ->toolbarButtons([])
                         ->required(),
                     SpatieMediaLibraryFileUpload::make('image')
-                        ->label('Foto Webinar')
+                        ->label('Foto Ekskul')
                         ->required()
                         ->imageEditor()
                         ->disk('gcs')
-                        ->collection('webinar')
+                        ->collection('ekskul')
                         ->image()
+                        ->directory('ekskul')
                         ->imageEditorAspectRatios([
                             '16:9',
                             '4:3',
@@ -60,13 +71,8 @@ class WebinarResource extends Resource
                         ->hint('Ukuran Maksimal 10 MB')
                         ->hintIcon('heroicon-o-information-circle')
                         ->hintColor('warning')
+                        ->required()
                         ->acceptedFileTypes(['image/png', 'image/jpg', 'image/jpeg', 'image/webp']),
-                    Toggle::make('publish')
-                        ->label('Publish')
-                        ->onColor('success')
-                        ->offColor('danger')
-                        ->inline()
-                        ->default(false),
                 ])
             ]);
     }
@@ -76,28 +82,23 @@ class WebinarResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label('Nama Webinar')
+                    ->label('Nama Ekskul')
                     ->wrap()
                     ->alignCenter()
                     ->searchable(),
-                TextColumn::make('link')
+                TextColumn::make('deskripsi')
                     ->alignCenter()
-                    ->label('Link Gform'),
+                    ->label('Deskripsi Ekskul')
+                    ->wrap()
+                    ->limit(50)
+                    ->html()
+                    ->searchable(),
                 SpatieMediaLibraryImageColumn::make('image')
-                    ->label('Foto Webinar')
+                    ->label('Foto Ekskul')
                     ->alignCenter()
-                    ->width(150)
-                    ->height(150)
-                    ->collection('webinar'),
-                ToggleColumn::make('publish')
-                    ->label('Publish')
-                    ->onColor('success')
-                    ->offColor('danger')
-                    ->alignCenter()
-                    ->action(function ($record, $state) {
-                        $record->publish = $state;
-                        $record->save();
-                    }),
+                    ->width(100)
+                    ->height(100)
+                    ->collection('ekskul'),
             ])
             ->filters([
                 //
@@ -109,7 +110,7 @@ class WebinarResource extends Resource
                         Notification::make()
                             ->title('Updated')
                             ->color('success')
-                            ->body("Data Webinar {$record->name} berhasil diubah!")
+                            ->body("Data Ekskul {$record->name} berhasil diubah!")
                             ->success()
                             ->duration(3000)
                             ->send();
@@ -120,7 +121,7 @@ class WebinarResource extends Resource
                         Notification::make()
                             ->title('Updated')
                             ->color('success')
-                            ->body("Data Webinar {$record->name} berhasil diubah!")
+                            ->body("Data Ekskul {$record->name} berhasil diubah!")
                             ->success()
                             ->duration(3000)
                             ->send();
@@ -136,7 +137,7 @@ class WebinarResource extends Resource
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageWebinars::route('/'),
+            'index' => Pages\ManageEkskuls::route('/'),
         ];
     }
 }

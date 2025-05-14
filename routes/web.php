@@ -16,7 +16,10 @@ Route::get('/galeri', [GeneralControllers::class, 'galeri'])->name('galeri');
 Route::get('/registrasi', [GeneralControllers::class, 'registrasi'])->name('registrasi');
 Route::post('/assessment', [AssessmentController::class, 'store'])->name('assessment.store');
 Route::get('/assessments', [AssessmentController::class, 'index'])->name('assessment');
-Route::get('/hasil', [AssessmentController::class, 'hasil'])->name('hasil');
+Route::post('/assessment/hasil', [AssessmentController::class, 'hasil'])->name('assessment.hasil');
+
+// Route untuk menampilkan hasil quiz (GET)
+Route::get('/assessment/hasil', [AssessmentController::class, 'showHasil'])->name('assessment.hasil.show');
 
 // Route untuk mengambil data kota
 Route::get('/api/cities/{province}', function ($province) {

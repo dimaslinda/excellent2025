@@ -6,10 +6,12 @@
             <img src="{{ asset('img/general/logo.webp') }}" class="h-8 xl:h-10" alt="logo ET" />
         </a>
         <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
-            <button data-modal-target="default-modal" data-modal-toggle="default-modal" type="button"
-                class="text-white font-poppins cursor-pointer capitalize bg-tombol hover:bg-tombol focus:ring-4 focus:outline-none focus:ring-navbar font-medium rounded-full text-sm px-9 py-2 text-center">
-                daftar
-            </button>
+            @if (!request()->routeIs('assessment'))
+                <a href="/registrasi" target="_blank"
+                    class="text-white font-poppins cursor-pointer capitalize bg-tombol hover:bg-tombol focus:ring-4 focus:outline-none focus:ring-navbar font-medium rounded-full text-sm px-9 py-2 text-center">
+                    asesmen
+                </a>
+            @endif
 
             <button data-collapse-toggle="navbar-sticky" type="button"
                 class="inline-flex items-center p-2 w-10 h-10 justify-center text-sm text-tombol rounded-lg md:hidden hover:bg-tombol focus:outline-none focus:ring-2 focus:ring-tombol"

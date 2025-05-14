@@ -12,6 +12,8 @@ use App\Models\Bootcamp;
 use App\Models\Inhouse;
 use App\Models\Testimoni;
 use Illuminate\Http\Request;
+use Laravolt\Indonesia\Models\Province;
+use Laravolt\Indonesia\Models\City;
 
 class GeneralControllers extends Controller
 {
@@ -91,6 +93,7 @@ class GeneralControllers extends Controller
 
     public function registrasi()
     {
-        return view('registrasi');
+        $provinces = Province::orderBy('name')->pluck('name', 'code');
+        return view('registrasi', compact('provinces'));
     }
 }

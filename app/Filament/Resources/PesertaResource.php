@@ -2,18 +2,19 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\PesertaResource\Pages;
-use App\Filament\Resources\PesertaResource\RelationManagers;
-use App\Models\Peserta;
 use Filament\Forms;
-use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
+use App\Models\Peserta;
+use Filament\Forms\Form;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Laravolt\Indonesia\Models\Province;
+use Filament\Resources\Resource;
 use Laravolt\Indonesia\Models\City;
+use Laravolt\Indonesia\Models\Province;
+use Filament\Notifications\Notification;
+use Illuminate\Database\Eloquent\Builder;
+use App\Filament\Resources\PesertaResource\Pages;
+use Illuminate\Database\Eloquent\SoftDeletingScope;
+use App\Filament\Resources\PesertaResource\RelationManagers;
 
 class PesertaResource extends Resource
 {
@@ -131,8 +132,30 @@ class PesertaResource extends Resource
                 //
             ])
             ->actions([
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                Tables\Actions\EditAction::make()
+                    ->successNotification(null)
+                    ->after(function ($record) {
+                        Notification::make()
+                            ->title('Updated')
+                            ->color('success')
+                            ->body("Data Peserta {$record->name} berhasil diubah!")
+                            ->success()
+                            ->duration(3000)
+                            ->send();
+                    }),
+                Tables\Actions\DeleteAction::make()
+                    ->successNotification(null)
+                    ->after(function ($record) {
+                        Notification::make()
+                            ->title('Deleted')
+                            ->color('danger')
+                            ->icon('heroicon-s-trash')
+                            ->iconColor('danger')
+                            ->body("Data Peserta {$record->name} berhasil dihapus!")
+                            ->success()
+                            ->duration(3000)
+                            ->send();
+                    }),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([

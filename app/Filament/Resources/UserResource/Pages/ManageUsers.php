@@ -1,27 +1,27 @@
 <?php
 
-namespace App\Filament\Resources\PesertaResource\Pages;
+namespace App\Filament\Resources\UserResource\Pages;
 
 use Filament\Actions;
+use App\Filament\Resources\UserResource;
 use Filament\Notifications\Notification;
-use App\Filament\Resources\PesertaResource;
 use Filament\Resources\Pages\ManageRecords;
 
-class ManagePesertas extends ManageRecords
+class ManageUsers extends ManageRecords
 {
-    protected static string $resource = PesertaResource::class;
+    protected static string $resource = UserResource::class;
 
     protected function getHeaderActions(): array
     {
         return [
             Actions\CreateAction::make()
-                ->label('Tambah Peserta')
+                ->label('Tambah Pengguna')
                 ->successNotification(null)
                 ->after(function ($record) {
                     Notification::make()
                         ->title('Saved')
                         ->color('success')
-                        ->body("Peserta {$record->name} berhasil ditambahkan!")
+                        ->body("Pengguna {$record->name} berhasil ditambahkan!")
                         ->success()
                         ->duration(3000)
                         ->send();

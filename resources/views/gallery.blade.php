@@ -30,16 +30,16 @@
                         data-modal-toggle="default-modal-{{ $item->id }}"
                         class="max-w-md rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
                         <div class="max-h-[320px] overflow-hidden">
-                            <img src="{{ asset('img/gallery/1/1.webp') }}" class="h-full w-full object-cover"
+                            <img src="{{ $item->getFirstMediaUrl('gallerythumb') }}" class="h-full w-full object-cover"
                                 alt="modul">
                         </div>
                         <div class="p-6">
                             <div
                                 class="capitalize text-[#191919] text-xl font-bold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                                Peningkatan Profesionalisme Guru dalam Literasi Numerasi melalui ...
+                                {{ $item->name }}
                             </div>
                             <div class="text-[#191919] font-poppins">
-                                SDN Kampung Baru 1 Tangerang
+                                {{ $item->sekolah }}
                             </div>
                         </div>
                     </div>

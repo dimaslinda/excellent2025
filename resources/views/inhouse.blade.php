@@ -25,17 +25,10 @@
                 <div class="flex flex-col-reverse xl:flex-row gap-5 md:p-10">
                     <div class="md:flex-1 mb-12 xl:mb-0 xl:pr-10">
                         <h2 class="font-poppins font-bold text-xl lg:text-3xl mb-5">
-                            Peningkatan Profesionalisme Guru dalam Literasi Numerasi melalui Pemanfaatan Artificial
-                            Intelligence
+                            {{ $item->name }}
                         </h2>
                         <div class="font-poppins text-cardhitam text-justify">
-                            Pelatihan ini bertujuan meningkatkan profesionalisme guru dalam literasi numerasi melalui
-                            pemanfaatan Artificial Intelligence (AI). Peserta akan mempelajari dasar-dasar AI dan
-                            aplikasinya
-                            dalam pendidikan, khususnya untuk mendukung pembelajaran numerasi yang interaktif dan adaptif.
-                            Guru
-                            akan dibekali keterampilan praktis dalam merancang materi, memberi umpan balik, dan menganalisis
-                            capaian belajar dengan bantuan AI.
+                            {!! $item->deskripsi !!}
                         </div>
                         <div class="flex justify-center text-center mt-5 uppercase font-bold group">
 
@@ -57,7 +50,7 @@
                         <div class="absolute z-10 -top-6 md:-top-10 -left-10">
                             <img src="{{ asset('img/general/mask.png') }}" class="w-26 md:w-full" alt="mask">
                         </div>
-                        <img src="{{ asset('img/general/iht-1.webp') }}"
+                        <img src="{{ $item->getFirstMediaUrl('inhouse') }}"
                             class="w-full h-full object-cover rounded-br-3xl md:rounded-br-[65px] max-h-[400px]"
                             alt="iht">
                         @if ($item->publish)
@@ -71,10 +64,10 @@
                     </div>
                 </div>
             @empty
-                <div class="flex flex-col items-center justify-center min-h-[400px]">
-                    <div class="font-poppins font-bold text-xl text-cardhitam mt-5 text-center">
-                        Belum ada data In House Training
-                    </div>
+                <div class="col-span-full text-center">
+                    <h2 class="text-2xl font-bold text-gray-500">Mohon maaf, belum ada data In House Training yang tersedia
+                    </h2>
+                    <p class="text-gray-400 mt-2">Silakan cek kembali di lain waktu</p>
                 </div>
             @endforelse
 
@@ -93,122 +86,61 @@
             <!-- Swiper -->
             <div class="swiper mySwiper3">
                 <div class="swiper-wrapper">
-                    <div class="swiper-slide">
-                        <div class="flex flex-row gap-2">
-                            <div
-                                class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                <div class="rounded-full w-40 h-40 mb-5">
-                                    <img src="{{ asset('img/general/riska.webp') }}"
-                                        class="rounded-full w-40 h-40 object-cover" alt="testimoni">
+                    @forelse ($testimoni as $item)
+                        <div class="swiper-slide">
+                            <div class="flex flex-row gap-2">
+                                <div
+                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
+                                    <div class="rounded-full w-40 h-40 mb-5">
+                                        <img src="{{ $item->getFirstMediaUrl('testimoni') }}"
+                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni">
+                                    </div>
+                                    <div class="font-poppins text-center">
+                                        <div class="font-bold text-3xl text-footer">
+                                            {{ $item->name }}
+                                        </div>
+                                        <div class="text-lg text-cardhitam mb-5">
+                                            {{ $item->jabatan }}
+                                        </div>
+                                        <div class="text-justify italic text-cardhitam">
+                                            {!! $item->testimoni !!}
+                                        </div>
+                                    </div>
                                 </div>
-                                <div class="font-poppins text-center">
-                                    <div class="font-bold text-3xl text-footer">
-                                        Riska Tania, SE.M.A.B.
-                                    </div>
-                                    <div class="text-lg text-cardhitam mb-5">
-                                        Kepala Bidang Pendidikan Dasar Disdikporapar Kab. Mempawah
-                                    </div>
-                                    <div class="text-justify italic text-cardhitam">
-                                        Terima kasih kepada Excellent Team atas pelatihan dan workshop yang membuka
-                                        wawasan guru-guru Kabupaten Mempawah tentang pemanfaatan AI, sehingga
-                                        membantu meringankan tugas administrasi dan meningkatkan kreativitas dalam
-                                        mengajar.
-                                    </div>
+                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
+                                    <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
+                                        alt="testimoni">
                                 </div>
-                            </div>
-                            <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
-                                    alt="testimoni">
                             </div>
                         </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="flex flex-row gap-2">
-                            <div
-                                class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                <div class="rounded-full w-40 h-40 mb-5">
-                                    <img src="{{ asset('img/general/juhairiyah.webp') }}"
-                                        class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                </div>
-                                <div class="font-poppins text-center">
-                                    <div class="font-bold text-3xl text-footer">
-                                        Juhairiyah, S. Pd, M. Pd
+                    @empty
+                        <div class="swiper-slide">
+                            <div class="flex flex-row gap-2">
+                                <div
+                                    class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
+                                    <div class="rounded-full w-40 h-40 mb-5">
+                                        <img src="{{ asset('img/general/default-profile.webp') }}"
+                                            class="rounded-full w-40 h-40 object-cover" alt="testimoni default">
                                     </div>
-                                    <div class="text-lg text-cardhitam mb-5">
-                                        Kepala UPT SDN Poris Pelawad 2
-                                    </div>
-                                    <div class="text-justify italic text-cardhitam">
-                                        Bekerjasama dengan Excellent Team dalam pelatihan guru sangat luar biasa.
-                                        Materi pelatihan berbasis teknologi disampaikan secara profesional dan
-                                        benar-benar membantu guru dalam menyiapkan perangkat ajar dan media
-                                        pembelajaran.
+                                    <div class="font-poppins text-center">
+                                        <div class="font-bold text-3xl text-footer">
+                                            Belum Ada Data
+                                        </div>
+                                        <div class="text-lg text-cardhitam mb-5">
+                                            Testimoni
+                                        </div>
+                                        <div class="text-justify italic text-cardhitam">
+                                            Belum ada data testimoni yang tersedia saat ini
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                            <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
-                                    alt="testimoni">
+                                <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
+                                    <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
+                                        alt="testimoni">
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="flex flex-row gap-2">
-                            <div
-                                class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                <div class="rounded-full w-40 h-40 mb-5">
-                                    <img src="{{ asset('img/general/riska.webp') }}"
-                                        class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                </div>
-                                <div class="font-poppins text-center">
-                                    <div class="font-bold text-3xl text-footer">
-                                        Riska Tania, SE.M.A.B.
-                                    </div>
-                                    <div class="text-lg text-cardhitam mb-5">
-                                        Kepala Bidang Pendidikan Dasar Disdikporapar Kab. Mempawah
-                                    </div>
-                                    <div class="text-justify italic text-cardhitam">
-                                        Terima kasih kepada Excellent Team atas pelatihan dan workshop yang membuka
-                                        wawasan guru-guru Kabupaten Mempawah tentang pemanfaatan AI, sehingga
-                                        membantu meringankan tugas administrasi dan meningkatkan kreativitas dalam
-                                        mengajar.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
-                                    alt="testimoni">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="swiper-slide">
-                        <div class="flex flex-row gap-2">
-                            <div
-                                class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
-                                <div class="rounded-full w-40 h-40 mb-5">
-                                    <img src="{{ asset('img/general/juhairiyah.webp') }}"
-                                        class="rounded-full w-40 h-40 object-cover" alt="testimoni">
-                                </div>
-                                <div class="font-poppins text-center">
-                                    <div class="font-bold text-3xl text-footer">
-                                        Juhairiyah, S. Pd, M. Pd
-                                    </div>
-                                    <div class="text-lg text-cardhitam mb-5">
-                                        Kepala UPT SDN Poris Pelawad 2
-                                    </div>
-                                    <div class="text-justify italic text-cardhitam">
-                                        Bekerjasama dengan Excellent Team dalam pelatihan guru sangat luar biasa.
-                                        Materi pelatihan berbasis teknologi disampaikan secara profesional dan
-                                        benar-benar membantu guru dalam menyiapkan perangkat ajar dan media
-                                        pembelajaran.
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
-                                <img src="{{ asset('img/general/testimoni.webp') }}" class="object-cover w-full h-full"
-                                    alt="testimoni">
-                            </div>
-                        </div>
-                    </div>
+                    @endforelse
                 </div>
                 <div class="paginat2 hidden md:flex"></div>
                 <div class="button-next3 justify-center items-center self-center p-2 hidden md:flex">

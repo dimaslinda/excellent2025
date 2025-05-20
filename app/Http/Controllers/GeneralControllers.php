@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Models\Modul;
 use App\Models\Ekskul;
-use GuzzleHttp\Client;
 use App\Models\Ecourse;
 use App\Models\Gallery;
 use App\Models\Webinar;
@@ -14,30 +13,45 @@ use App\Models\Testimoni;
 use Illuminate\Http\Request;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
+use GuzzleHttp\Promise;
+use GuzzleHttp\Client;
+use GuzzleHttp\Promise\Utils;
 
 class GeneralControllers extends Controller
 {
-    private function fetchPosts($limit)
+    private function fetchPostsAsync($limit)
     {
         $client = new Client();
         $apiUrl = "https://excellentteam.id/artikel/wp-json/wp/v2/posts";
 
-        $response = $client->request('GET', $apiUrl, [
-            'verify' => false,
-            'auth' => ['dimasbon', 'dongorasta'],
-        ]);
+        $promises = [
+            'posts' => $client->getAsync($apiUrl, [
+                'verify' => false,
+                'auth' => ['dimasbon', 'dongorasta'],
+            ])
+        ];
 
-        return array_slice(json_decode($response->getBody()), 0, $limit);
+        $results = Utils::settle($promises)->wait();
+
+        return isset($results['posts']['value'])
+            ? array_slice(json_decode($results['posts']['value']->getBody()), 0, $limit)
+            : [];
     }
-
 
     public function index()
     {
         $testimoni = Testimoni::with('media')->get();
         $gallery = Gallery::with('media')->where('publish', 1)->orderBy('id', 'desc')->get();
+
+        // Ambil semua data secara async
+        $promises = [
+            'responselates' => $this->fetchPostsAsync(1),
+            'responselimit' => $this->fetchPostsAsync(4),
+        ];
+
         return view('index', [
-            'responselates' => $this->fetchPosts(1),
-            'responselimit' => $this->fetchPosts(4),
+            'responselates' => $promises['responselates'],
+            'responselimit' => $promises['responselimit'],
             'testimoni' => $testimoni,
             'gallery' => $gallery
         ]);
@@ -45,11 +59,12 @@ class GeneralControllers extends Controller
 
     public function inhouse()
     {
+        $testimoni = Testimoni::with('media')->get();
         $inhouse = Inhouse::with('media')
             ->orderByRaw('CASE WHEN publish = 1 THEN 0 ELSE 1 END')
             ->orderBy('id', 'desc')
             ->get();
-        return view('inhouse', compact('inhouse'));
+        return view('inhouse', compact('inhouse', 'testimoni'));
     }
 
     public function modul()
@@ -60,7 +75,10 @@ class GeneralControllers extends Controller
 
     public function webinar()
     {
-        $webinar = Webinar::with('media')->get();
+        $webinar = Webinar::with('media')
+            ->orderByRaw('CASE WHEN publish = 1 THEN 0 ELSE 1 END')
+            ->orderBy('id', 'desc')
+            ->get();
         return view('webinar', compact('webinar'));
     }
 
@@ -78,8 +96,9 @@ class GeneralControllers extends Controller
 
     public function eskul()
     {
+        $testimoni = Testimoni::with('media')->get();
         $ekskul = Ekskul::with('media')->orderBy('id', 'desc')->get();
-        return view('eskul', compact('ekskul'));
+        return view('eskul', compact('ekskul', 'testimoni'));
     }
 
     public function galeri()

@@ -15,12 +15,14 @@ class CardLayanan extends Component
     public $src;
     public $alt;
     public $title;
+    public $href;
 
-    public function __construct($src, $alt, $title)
+    public function __construct($src, $alt, $title, $href)
     {
         $this->src = $src;
         $this->alt = $alt;
         $this->title = $title;
+        $this->href = $href;
     }
 
     /**

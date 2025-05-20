@@ -212,28 +212,6 @@ class AssessmentController extends Controller
             Log::error('Gagal mengirim email hasil quiz: ' . $e->getMessage());
         }
 
-        // Kirim WhatsApp ke orang tua via Fonnte
-        try {
-            $waMessage = "Assalamu'alaikum, berikut hasil tes gaya belajar untuk ananda {$peserta->name}:\n\n"
-                . "Gaya belajar dominan: " . ucfirst($hasil->gaya_belajar) . "\n"
-                . "Visual: {$skor['visual']}, Auditori: {$skor['auditori']}, Kinestetik: {$skor['kinestetik']}, Read/Write: {$skor['readwrite']}\n\n"
-                . "Rekomendasi: ";
-            if ($hasil->gaya_belajar == 'visual') {
-                $waMessage .= "Berikan materi dengan banyak gambar, diagram, dan visualisasi.";
-            } elseif ($hasil->gaya_belajar == 'auditori') {
-                $waMessage .= "Berikan materi dengan penjelasan lisan, diskusi, dan audio.";
-            } elseif ($hasil->gaya_belajar == 'kinestetik') {
-                $waMessage .= "Berikan materi dengan aktivitas praktik, eksperimen, dan simulasi.";
-            } else {
-                $waMessage .= "Berikan materi dengan banyak teks, artikel, dan catatan tertulis.";
-            }
-            $waMessage .= "\n\nTerima kasih, Tim Excellent 2025";
-
-            $this->sendWhatsappFonnte($peserta->nomor_whatsapp_orang_tua, $waMessage);
-        } catch (\Exception $e) {
-            Log::error('Gagal mengirim WhatsApp hasil quiz: ' . $e->getMessage());
-        }
-
         return $hasil;
     }
 
@@ -324,28 +302,5 @@ class AssessmentController extends Controller
         return redirect()->back()
             ->withInput()
             ->with('error', 'Terjadi kesalahan saat menyimpan data. Silakan coba lagi.');
-    }
-
-    private function sendWhatsappFonnte($to, $message)
-    {
-        $token = '1zDZTNXi5aA8MVTpeAcr'; // Ganti dengan token Fonnte Anda
-
-        $payload = [
-            'target' => $to, // Nomor tujuan, contoh: 6281234567890
-            'message' => $message,
-        ];
-
-        $ch = curl_init();
-        curl_setopt($ch, CURLOPT_URL, "https://api.fonnte.com/send");
-        curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
-        curl_setopt($ch, CURLOPT_POST, 1);
-        curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query($payload));
-        curl_setopt($ch, CURLOPT_HTTPHEADER, [
-            "Authorization: $token"
-        ]);
-        $result = curl_exec($ch);
-        curl_close($ch);
-
-        return $result;
     }
 }

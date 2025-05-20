@@ -1,6 +1,6 @@
 [
     {
-        "origin": ["http://excellent2025.test"],
+        "origin": ["https://excellentteam.id/"],
         "method": ["GET", "HEAD", "OPTIONS"],
         "responseHeader": ["Content-Type"],
         "maxAgeSeconds": 3600

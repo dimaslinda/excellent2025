@@ -74,12 +74,13 @@
                     </svg>
                 </div>
                 <div class="grid grid-cols-2 xl:grid-cols-3 gap-5">
-                    <x-card-layanan src="img/general/iht.webp" alt="iht" title="In House Training" />
-                    <x-card-layanan src="img/general/bootcamp.webp" alt="bootcamp" title="Bootcamp" />
-                    <x-card-layanan src="img/general/e-course.webp" alt="e-course" title="E-Course" />
-                    <x-card-layanan src="img/general/modul.webp" alt="modul" title="Modul" />
-                    <x-card-layanan src="img/general/ekstrakulikuler.webp" alt="ekstrakulikuler" title="Ekstrakulikuler" />
-                    <x-card-layanan src="img/general/webinar.webp" alt="webinar" title="Webinar" />
+                    <x-card-layanan src="img/general/iht.webp" alt="iht" title="In House Training" href="inhouse" />
+                    <x-card-layanan src="img/general/bootcamp.webp" alt="bootcamp" title="Bootcamp" href="bootcamp" />
+                    <x-card-layanan src="img/general/e-course.webp" alt="e-course" title="E-Course" href="ecourse" />
+                    <x-card-layanan src="img/general/modul.webp" alt="modul" title="Modul" href="modul" />
+                    <x-card-layanan src="img/general/ekstrakulikuler.webp" alt="ekstrakulikuler" title="Ekstrakulikuler"
+                        href="eskul" />
+                    <x-card-layanan src="img/general/webinar.webp" alt="webinar" title="Webinar" href="wwebinar" />
 
                 </div>
             </div>
@@ -138,151 +139,12 @@
                                 </div>
                             </div>
                         @empty
+                            <div class="flex flex-col items-center justify-center min-h-[400px]">
+                                <div class="font-poppins font-bold text-xl text-cardhitam mt-5 text-center">
+                                    Belum ada data portofolio
+                                </div>
+                            </div>
                         @endforelse
-                        {{-- <div class="swiper-slide">
-                            <div class="flex flex-col lg:flex-row mt-10 gap-5">
-                                <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
-                                    <div class="flex flex-col items-center self-center rounded-xl max-w-xl">
-                                        <img src="{{ asset('img/general/portofolio.webp') }}"
-                                            class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                    </div>
-                                </div>
-                                <div class="flex-1 flex justify-center w-full py-6">
-                                    <div
-                                        class="flex flex-col justify-center items-center lg:items-start lg:justify-start gap-6 w-full">
-                                        <div class="flex flex-row justify-center lg:justify-start w-full gap-6 max-w-xl">
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-2.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-3.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="bg-white rounded-lg font-poppins p-4 md:p-10 min-h-52 max-w-xl flex flex-col justify-between shadow-2xl drop-shadow-2xl">
-                                            <div class="text-cardhitam font-bold text-3xl md:text-4xl">
-                                                Pembelajaran Paradigma Baru dengan AI
-                                            </div>
-                                            <div class="text-lg">
-                                                Sukasari 7 - Tangerang
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-col lg:flex-row mt-10 gap-5">
-                                <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
-                                    <div class="flex flex-col items-center self-center rounded-xl max-w-xl">
-                                        <img src="{{ asset('img/general/portofolio.webp') }}"
-                                            class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                    </div>
-                                </div>
-                                <div class="flex-1 flex justify-center w-full py-6">
-                                    <div
-                                        class="flex flex-col justify-center items-center lg:items-start lg:justify-start gap-6 w-full">
-                                        <div class="flex flex-row justify-center lg:justify-start w-full gap-6 max-w-xl">
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-2.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-3.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="bg-white rounded-lg font-poppins p-4 md:p-10 min-h-52 max-w-xl flex flex-col justify-between shadow-2xl drop-shadow-2xl">
-                                            <div class="text-cardhitam font-bold text-3xl md:text-4xl">
-                                                Pembelajaran Paradigma Baru dengan AI
-                                            </div>
-                                            <div class="text-lg">
-                                                Sukasari 7 - Tangerang
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-col lg:flex-row mt-10 gap-5">
-                                <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
-                                    <div class="flex flex-col items-center self-center rounded-xl max-w-xl">
-                                        <img src="{{ asset('img/general/portofolio.webp') }}"
-                                            class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                    </div>
-                                </div>
-                                <div class="flex-1 flex justify-center w-full py-6">
-                                    <div
-                                        class="flex flex-col justify-center items-center lg:items-start lg:justify-start gap-6 w-full">
-                                        <div class="flex flex-row justify-center lg:justify-start w-full gap-6 max-w-xl">
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-2.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-3.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="bg-white rounded-lg font-poppins p-4 md:p-10 min-h-52 max-w-xl flex flex-col justify-between shadow-2xl drop-shadow-2xl">
-                                            <div class="text-cardhitam font-bold text-3xl md:text-4xl">
-                                                Pembelajaran Paradigma Baru dengan AI
-                                            </div>
-                                            <div class="text-lg">
-                                                Sukasari 7 - Tangerang
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="flex flex-col lg:flex-row mt-10 gap-5">
-                                <div class="flex-1 flex justify-center w-full lg:justify-end py-6">
-                                    <div class="flex flex-col items-center self-center rounded-xl max-w-xl">
-                                        <img src="{{ asset('img/general/portofolio.webp') }}"
-                                            class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                    </div>
-                                </div>
-                                <div class="flex-1 flex justify-center w-full py-6">
-                                    <div
-                                        class="flex flex-col justify-center items-center lg:items-start lg:justify-start gap-6 w-full">
-                                        <div class="flex flex-row justify-center lg:justify-start w-full gap-6 max-w-xl">
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-2.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-
-                                            <div class="flex flex-col items-center self-center rounded-xl md:h-70">
-                                                <img src="{{ asset('img/general/portofolio-3.webp') }}"
-                                                    class="w-full h-full object-cover rounded-xl" alt="portofolio">
-                                            </div>
-                                        </div>
-
-                                        <div
-                                            class="bg-white rounded-lg font-poppins p-4 md:p-10 min-h-52 max-w-xl flex flex-col justify-between shadow-2xl drop-shadow-2xl">
-                                            <div class="text-cardhitam font-bold text-3xl md:text-4xl">
-                                                Pembelajaran Paradigma Baru dengan AI
-                                            </div>
-                                            <div class="text-lg">
-                                                Sukasari 7 - Tangerang
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div> --}}
                     </div>
                     <div class="paginat hidden md:flex"></div>
                     <div class="button-next justify-center items-center self-center p-2 hidden md:flex">

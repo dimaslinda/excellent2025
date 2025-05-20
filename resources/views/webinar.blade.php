@@ -22,14 +22,13 @@
                     <div
                         class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
                         <div class="max-h-[550px] overflow-hidden">
-                            <img src="{{ asset('img/general/excellentteach-1.webp') }}" class="h-full w-full object-cover"
+                            <img src="{{ $item->getFirstMediaUrl('webinar') }}" class="h-full w-full object-cover"
                                 alt="modul">
                         </div>
                         <div class="p-6">
                             <div
                                 class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                                pengembangan kualitas kompetensi guru melalui asesmen profiling modalitas siswa dan optimasi
-                                teknologi artifical intelegence
+                                {{ $item->name }}
                             </div>
                             <div class="flex justify-center w-full text-center group">
                                 @if ($item->publish)
@@ -47,148 +46,12 @@
                         </div>
                     </div>
                 @empty
+                    <div class="col-span-full text-center">
+                        <h2 class="text-2xl font-bold text-gray-500">Mohon maaf, belum ada data Webinar yang tersedia
+                        </h2>
+                        <p class="text-gray-400 mt-2">Silakan cek kembali di lain waktu</p>
+                    </div>
                 @endforelse
-                {{-- <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-1.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            pengembangan kualitas kompetensi guru melalui asesmen profiling modalitas siswa dan optimasi
-                            teknologi artifical intelegence
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-2.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            membangun karakter pancasila: peran AI dalam implementasi P5 di sekolah
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-3.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            implementasi soal lots & hots dalam meningkatkan literasi numerasi siswa
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-4.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            STEAM: Inovasi Pembelajaran Masa Depan
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-5.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            Pembelajaran Paradigma Baru untuk Guru Paud...
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-6.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            Pembuatan Konten Digital untuk Guru Paud
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div>
-
-                <div
-                    class="max-w-sm rounded-xl cursor-pointer flex flex-col overflow-hidden bg-white drop-shadow-2xl shadow-2xl">
-                    <div class="max-h-[550px] overflow-hidden">
-                        <img src="{{ asset('img/general/excellentteach-7.webp') }}" class="h-full w-full object-cover"
-                            alt="modul">
-                    </div>
-                    <div class="p-6">
-                        <div
-                            class="capitalize text-footer text-xl font-semibold line-clamp-2 font-poppins mb-5 tracking-wide leading-normal">
-                            Konselor Pendidik Karakter
-                        </div>
-                        <div class="flex justify-center w-full text-center group">
-                            <a href="#"
-                                class="text-white bg-headerbanner py-2 px-5 rounded-full w-full uppercase font-bold group-hover:scale-110 transition duration-300 ease-in-out">
-                                daftar
-                            </a>
-                        </div>
-                    </div>
-                </div> --}}
-
             </div>
         </div>
     </section>

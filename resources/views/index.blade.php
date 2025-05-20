@@ -304,9 +304,9 @@
                     <div class="swiper-wrapper">
                         @forelse ($testimoni as $item)
                             <div class="swiper-slide">
-                                <div class="flex flex-row gap-2">
+                                <div class="flex flex-col lg:flex-row gap-2">
                                     <div
-                                        class="w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-10">
+                                        class="w-full lg:w-[35%] bg-white rounded-xl shadow-2xl flex flex-col justify-center items-center drop-shadow-2xl min-h-52 p-6 lg:p-10">
                                         <div class="rounded-full w-40 h-40 mb-5">
                                             <img src="{{ $item->getFirstMediaUrl('testimoni') }}"
                                                 class="rounded-full w-40 h-40 object-cover" alt="testimoni">
@@ -318,12 +318,13 @@
                                             <div class="text-lg text-cardhitam mb-5">
                                                 {{ $item->jabatan }}
                                             </div>
-                                            <div class="text-justify italic text-cardhitam">
+                                            <div
+                                                class="text-justify italic text-cardhitam line-clamp-4 lg:line-clamp-none">
                                                 {!! $item->testimoni !!}
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
+                                    <div class="w-full lg:w-[65%] rounded-xl shadow-2xl drop-shadow-2xl relative">
                                         <img src="{{ asset('img/general/testimoni.webp') }}"
                                             class="object-cover w-full h-full" alt="testimoni">
                                     </div>

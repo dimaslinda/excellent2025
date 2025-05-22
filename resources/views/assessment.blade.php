@@ -51,7 +51,7 @@
                                         {{ $index + 1 }}. {{ $soal->pertanyaan }}
                                     </label>
                                     <div class="space-y-2">
-                                        @foreach ($soal->jawaban->sortBy('urutan') as $jawaban)
+                                        @foreach ($soal->jawaban as $jawaban)
                                             <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
                                                 <input type="radio" name="jawaban[{{ $soal->id }}]"
                                                     value="{{ $jawaban->id }}"

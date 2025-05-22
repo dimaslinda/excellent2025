@@ -143,14 +143,21 @@ class AssessmentController extends Controller
     }
 
     private function showQuizQuestions()
-    {
-        $soals = QuizSoal::with(['jawaban' => function ($query) {
-            $query->inRandomOrder();
-        }])
+    {   
+        // Get active questions with answers, randomize question order and limit to max questions
+        $soals = QuizSoal::with('jawaban')
             ->where('is_active', true)
             ->inRandomOrder()
             ->take(self::MAX_QUESTIONS)
             ->get();
+
+        // Randomize answer order for each question
+        $soals->each(function ($soal) {
+            // Get answers collection and shuffle it
+            $shuffledAnswers = $soal->jawaban->shuffle();
+            // Reassign shuffled answers back to the question
+            $soal->jawaban = $shuffledAnswers;
+        });
 
         return view('assessment', compact('soals'));
     }

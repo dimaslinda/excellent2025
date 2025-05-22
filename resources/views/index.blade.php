@@ -179,24 +179,27 @@
                 <!-- Swiper -->
                 <div class="swiper mySwiper2 mt-20">
                     <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="max-h-[500px] flex justify-center items-center self-center">
-                                <iframe src="https://www.youtube.com/embed/RJTqA4uKV1I?enablejsapi=1"
-                                    title="YouTube video player" frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
-                                    class="md:w-[700px] md:h-[430px] rounded-xl"></iframe>
+                        @foreach (['RJTqA4uKV1I', 'lkBHk5UvbC8'] as $videoId)
+                            <div class="swiper-slide">
+                                <div class="max-h-[500px] flex justify-center items-center self-center youtube-facade"
+                                    data-video-id="{{ $videoId }}">
+                                    <div class="relative w-full md:w-[700px] h-full md:h-[430px]">
+                                        <img src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"
+                                            alt="Video Thumbnail" class="w-full h-full rounded-xl object-cover">
+                                        <button
+                                            class="play-video cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                            text-white px-4 py-2 rounded-lg">
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="107" height="75"
+                                                viewBox="0 0 107 75" fill="none">
+                                                <path
+                                                    d="M43.0035 53.4607L70.4058 37.6212L43.0035 21.7817V53.4607ZM104.038 12.1196C104.725 14.6011 105.2 17.9274 105.517 22.1513C105.886 26.3751 106.045 30.0182 106.045 33.1861L106.361 37.6212C106.361 49.184 105.517 57.6846 104.038 63.1228C102.718 67.8747 99.6561 70.937 94.9042 72.2569C92.4227 72.9433 87.8821 73.4185 80.9127 73.7353C74.0489 74.1049 67.7659 74.2633 61.9581 74.2633L53.5631 74.58C31.4406 74.58 17.6602 73.7353 12.222 72.2569C7.47016 70.937 4.40786 67.8747 3.0879 63.1228C2.40152 60.6413 1.92633 57.315 1.60954 53.0911C1.23996 48.8673 1.08156 45.2242 1.08156 42.0563L0.764771 37.6212C0.764771 26.0584 1.60954 17.5578 3.0879 12.1196C4.40786 7.36774 7.47016 4.30544 12.222 2.98548C14.7035 2.2991 19.2442 1.82392 26.2136 1.50713C33.0774 1.13754 39.3604 0.979143 45.1682 0.979143L53.5631 0.662354C75.6856 0.662354 89.466 1.50713 94.9042 2.98548C99.6561 4.30544 102.718 7.36774 104.038 12.1196Z"
+                                                    fill="#FFB43F" />
+                                            </svg>
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="swiper-slide">
-                            <div class="max-h-[500px] flex justify-center items-center self-center">
-                                <iframe src="https://www.youtube.com/embed/lkBHk5UvbC8?enablejsapi=1"
-                                    title="YouTube video player" frameborder="0"
-                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                                    referrerpolicy="strict-origin-when-cross-origin" allowfullscreen
-                                    class="md:w-[700px] md:h-[430px] rounded-xl"></iframe>
-                            </div>
-                        </div>
+                        @endforeach
                     </div>
                     <div class="button-next2 justify-center items-center self-center p-2 hidden md:flex">
                         <svg xmlns="http://www.w3.org/2000/svg" class="w-4" viewBox="0 0 7 12" fill="none">
@@ -213,6 +216,7 @@
                         </svg>
                     </div>
                 </div>
+
         </section>
         {{-- end kunjungi --}}
 
@@ -382,6 +386,7 @@
 @endsection
 @section('kaki')
     <!-- Swiper JS -->
+    <script defer src="https://www.youtube.com/iframe_api"></script>
     <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 
     <!-- Initialize Swiper -->
@@ -402,10 +407,6 @@
         });
 
         var swiper = new Swiper(".mySwiper2", {
-            autoplay: {
-                delay: 5000,
-                disableOnInteraction: false,
-            },
             loop: true,
             navigation: {
                 nextEl: ".button-next2",
@@ -426,6 +427,17 @@
             pagination: {
                 el: ".paginat2",
             },
+        });
+
+        document.addEventListener("DOMContentLoaded", function() {
+            document.querySelectorAll(".youtube-facade").forEach(facade => {
+                facade.querySelector(".play-video").addEventListener("click", function() {
+                    let videoId = facade.getAttribute("data-video-id");
+                    facade.innerHTML = `<iframe width="700" height="430" src="https://www.youtube.com/embed/${videoId}?autoplay=1"
+                frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                referrerpolicy="strict-origin-when-cross-origin" allowfullscreen class="rounded-xl"></iframe>`;
+                });
+            });
         });
     </script>
 @endsection

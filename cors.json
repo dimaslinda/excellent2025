@@ -1,6 +1,6 @@
 [
     {
-        "origin": ["https://excellentteam.id/"],
+        "origin": ["https://edu.excellentteam.id/"],
         "method": ["GET", "HEAD", "OPTIONS"],
         "responseHeader": ["Content-Type"],
         "maxAgeSeconds": 3600

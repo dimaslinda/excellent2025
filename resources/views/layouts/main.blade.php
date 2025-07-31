@@ -6,6 +6,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Excellent Team</title>
 
+    <!-- Meta Tags -->
+    <meta name="description"
+        content="Excellent Team - Platform pembelajaran terbaik untuk bootcamp, e-course, webinar, dan pelatihan in-house. Tingkatkan skill Anda bersama instruktur berpengalaman.">
+    <meta name="keywords"
+        content="bootcamp, e-course, webinar, pelatihan, in-house training, pembelajaran online, skill development, excellent team, kursus online, sertifikasi">
+    <meta name="author" content="Excellent Team">
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Excellent Team - Platform Pembelajaran Terbaik">
+    <meta property="og:description"
+        content="Platform pembelajaran terbaik untuk bootcamp, e-course, webinar, dan pelatihan in-house. Tingkatkan skill Anda bersama instruktur berpengalaman.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url()->current() }}">
+    <meta property="og:image" content="{{ asset('img/general/webinar.webp') }}">
+    <meta property="og:site_name" content="Excellent Team">
+    <meta property="og:locale" content="id_ID">
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="Excellent Team - Platform Pembelajaran Terbaik">
+    <meta name="twitter:description"
+        content="Platform pembelajaran terbaik untuk bootcamp, e-course, webinar, dan pelatihan in-house. Tingkatkan skill Anda bersama instruktur berpengalaman.">
+    <meta name="twitter:image" content="{{ asset('img/general/webinar.webp') }}">
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

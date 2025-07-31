@@ -187,7 +187,7 @@
                                         <img src="https://img.youtube.com/vi/{{ $videoId }}/hqdefault.jpg"
                                             alt="Video Thumbnail" class="w-full h-full rounded-xl object-cover">
                                         <button
-                                            class="play-video cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+                                            class="play-video cursor-pointer absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2
                             text-white px-4 py-2 rounded-lg">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="107" height="75"
                                                 viewBox="0 0 107 75" fill="none">

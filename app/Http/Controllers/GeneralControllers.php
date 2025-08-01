@@ -20,7 +20,7 @@ use GuzzleHttp\Promise\Utils;
 class GeneralControllers extends Controller
 {
     private function fetchPostsAsync($limit)
-    {   
+    {
         $client = new Client();
         $apiUrl = "https://excellentteam.id/artikel/wp-json/wp/v2/posts";
 
@@ -32,7 +32,7 @@ class GeneralControllers extends Controller
         ];
 
         $results = Utils::settle($promises)->wait();
-        
+
         if (!isset($results['posts']['value'])) {
             return [];
         }
@@ -48,7 +48,7 @@ class GeneralControllers extends Controller
     public function index()
     {
         $testimoni = Testimoni::with('media')->get();
-        $gallery = Gallery::with('media')->where('publish', 1)->orderBy('id', 'desc')->get();
+        $gallery = Gallery::with('media')->where('publish', 1)->orderBy('id', 'desc')->limit(5)->get();
 
         // Ambil semua data secara async
         $promises = [

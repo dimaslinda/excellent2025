@@ -93,7 +93,7 @@
                     </a>
                 </li>
                 <li>
-                    <a href="#"
+                    <a href="https://excellentteam.id/artikel/" target="_blank"
                         class="block py-2 px-3 text-white md:text-cardhitam capitalize rounded-sm hover:bg-tombol hover:text-white md:hover:bg-transparent md:hover:text-tombol">
                         artikel
                     </a>

@@ -234,7 +234,7 @@
                                     alt="artikel">
                             </div>
                             <div class="text-xl text-justify">
-                                {!! $article->yoast_head_json->description !!}
+                                {!! $article->yoast_head_json->og_description !!}
                             </div>
                             <div class="mt-5">
                                 <a href="{{ $article->link }}" target="_blank"

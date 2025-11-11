@@ -8,7 +8,7 @@ use Spatie\MediaLibrary\HasMedia;
 use Spatie\MediaLibrary\InteractsWithMedia;
 use Spatie\Image\Manipulations;
 
-class QuizSoal extends Model implements HasMedia
+class MinatSoal extends Model implements HasMedia
 {
     use InteractsWithMedia;
 
@@ -26,13 +26,13 @@ class QuizSoal extends Model implements HasMedia
 
     public function jawaban(): HasMany
     {
-        return $this->hasMany(QuizJawaban::class, 'soal_id');
+        return $this->hasMany(MinatJawaban::class, 'soal_id');
     }
 
     public function registerMediaCollections(): void
     {
         $disk = config('filesystems.default') === 'gcs' ? 'gcs' : 'public';
-        $this->addMediaCollection('quiz_soal_images')
+        $this->addMediaCollection('minat_soal_images')
             ->singleFile()
             ->useDisk($disk);
     }

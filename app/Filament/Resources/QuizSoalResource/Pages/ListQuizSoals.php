@@ -3,8 +3,8 @@
 namespace App\Filament\Resources\QuizSoalResource\Pages;
 
 use App\Filament\Resources\QuizSoalResource;
-use Filament\Actions;
 use Filament\Resources\Pages\ListRecords;
+use Filament\Actions;
 
 class ListQuizSoals extends ListRecords
 {

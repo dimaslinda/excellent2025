@@ -14,6 +14,11 @@ class QuizHasil extends Model
         'skor_auditori',
         'skor_kinestetik',
         'skor_readwrite',
+        'minat_summary',
+    ];
+
+    protected $casts = [
+        'minat_summary' => 'array',
     ];
 
     public function peserta(): BelongsTo

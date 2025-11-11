@@ -7,7 +7,7 @@
         </a>
         <div class="flex md:order-2 space-x-3 md:space-x-0 rtl:space-x-reverse">
             @if (!request()->routeIs('assessment'))
-                <a href="/registrasi"
+                <a href="{{ route('assessment.jenjang') }}"
                     class="text-white font-poppins cursor-pointer capitalize bg-tombol hover:bg-tombol focus:ring-4 focus:outline-none focus:ring-navbar font-medium rounded-full text-sm px-9 py-2 text-center">
                     asesmen
                 </a>

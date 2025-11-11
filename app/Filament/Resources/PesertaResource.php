@@ -2,95 +2,73 @@
 
 namespace App\Filament\Resources;
 
-use Filament\Forms;
-use Filament\Tables;
-use App\Models\Peserta;
-use Filament\Forms\Form;
-use Filament\Tables\Table;
-use Filament\Resources\Resource;
-use Laravolt\Indonesia\Models\City;
-use Laravolt\Indonesia\Models\Province;
-use Filament\Notifications\Notification;
-use Illuminate\Database\Eloquent\Builder;
 use App\Filament\Resources\PesertaResource\Pages;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use App\Filament\Resources\PesertaResource\RelationManagers;
+use App\Models\Peserta;
+use Filament\Forms;
+use Filament\Forms\Form;
+use Filament\Resources\Resource;
+use Filament\Tables;
+use Filament\Tables\Table;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\FileUpload;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\SelectFilter;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Storage;
 
 class PesertaResource extends Resource
 {
     protected static ?string $model = Peserta::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-users';
-
-    protected static ?string $navigationLabel = 'Data Peserta';
-
-    protected static ?string $modelLabel = 'Peserta';
-
+    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationLabel = 'Peserta';
     protected static ?string $pluralModelLabel = 'Peserta';
-
-    protected static ?string $navigationGroup = 'Manajemen Pengguna';
-
+    protected static ?string $modelLabel = 'Peserta';
+    protected static ?string $navigationGroup = 'Assessment';
+    protected static ?int $navigationSort = 1;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\Section::make('Data Siswa')
-                    ->schema([
-                        Forms\Components\TextInput::make('name')
-                            ->label('Nama Siswa')
-                            ->required()
-                            ->maxLength(255),
-                        Forms\Components\TextInput::make('sekolah')
-                            ->label('Asal Sekolah')
-                            ->required()
-                            ->maxLength(255),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Data Lokasi')
-                    ->schema([
-                        Forms\Components\Select::make('provinsi')
-                            ->label('Provinsi')
-                            ->options(Province::pluck('name', 'code'))
-                            ->required()
-                            ->live()
-                            ->afterStateUpdated(function ($state, Forms\Set $set) {
-                                if (!$state) {
-                                    $set('kota_kabupaten', null);
-                                }
-                            }),
-                        Forms\Components\Select::make('kota')
-                            ->label('Kota/Kabupaten')
-                            ->options(function (Forms\Get $get) {
-                                $provinceCode = $get('provinsi');
-                                if (!$provinceCode) {
-                                    return [];
-                                }
-                                return City::where('province_code', $provinceCode)
-                                    ->pluck('name', 'code');
-                            })
-                            ->required()
-                            ->disabled(fn(Forms\Get $get) => !$get('provinsi')),
-                    ])->columns(2),
-
-                Forms\Components\Section::make('Kontak')
-                    ->schema([
-                        Forms\Components\TextInput::make('nomor_whatsapp_orang_tua')
-                            ->label('Nomor WhatsApp Orang Tua')
-                            ->required()
-                            ->tel()
-                            ->maxLength(20),
-                        Forms\Components\TextInput::make('nomor_whatsapp_guru')
-                            ->label('Nomor WhatsApp Guru')
-                            ->required()
-                            ->tel()
-                            ->maxLength(20),
-                        Forms\Components\TextInput::make('email_guru')
-                            ->label('Email Guru')
-                            ->required()
-                            ->email()
-                            ->maxLength(255),
-                    ])->columns(2),
+                TextInput::make('name')->label('Nama')->required(),
+                TextInput::make('sekolah')->label('Asal Sekolah')->required(),
+                Select::make('jenjang')
+                    ->label('Jenjang')
+                    ->options([
+                        'SD' => 'SD',
+                        'SMP' => 'SMP',
+                        'SMA' => 'SMA',
+                    ])->required()->reactive()
+                    ->afterStateUpdated(function (Forms\Set $set, $state) {
+                        if ($state !== 'SD') {
+                            $set('tingkatan_sd', null);
+                        }
+                    }),
+                Select::make('tingkatan_sd')
+                    ->label('Tingkatan SD')
+                    ->options([
+                        'rendah' => 'Rendah (Kelas 1–3)',
+                        'tinggi' => 'Tinggi (Kelas 4–6)',
+                    ])->visible(fn(Forms\Get $get) => $get('jenjang') === 'SD')->nullable(),
+                TextInput::make('provinsi')->label('Provinsi')->required(),
+                TextInput::make('kota')->label('Kota/Kabupaten')->required(),
+                TextInput::make('nomor_whatsapp_orang_tua')->label('WA Orang Tua')->numeric()->maxLength(20)->required(),
+                TextInput::make('nomor_whatsapp_guru')->label('WA Guru')->numeric()->maxLength(20)->required(),
+                TextInput::make('email_guru')->label('Email Guru')->email()->required(),
+                TextInput::make('nisn')->label('NISN')->maxLength(20),
+                SpatieMediaLibraryFileUpload::make('photo')
+                    ->label('Foto')
+                    ->collection('photo')
+                    ->image()
+                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                    ->helperText('Foto disimpan menggunakan Spatie Media Library.')
+                    ->columnSpanFull(),
+                Toggle::make('is_dummy')->label('Dummy')->hidden(),
             ]);
     }
 
@@ -98,76 +76,73 @@ class PesertaResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('name')
-                    ->label('Nama Siswa')
-                    ->searchable()
+                ImageColumn::make('foto_path')
+                    ->label('Foto')
+                    ->circular()
+                    ->defaultImageUrl('/img/general/user-default.png')
+                    ->getStateUsing(function ($record) {
+                        // Prioritaskan media library
+                        $mediaUrl = method_exists($record, 'getFirstMediaUrl') ? $record->getFirstMediaUrl('photo') : null;
+                        if ($mediaUrl) {
+                            return $mediaUrl;
+                        }
+
+                        // Fallback ke kolom lama jika belum migrasi penuh
+                        $value = $record->foto_path;
+                        if (!$value) return null;
+
+                        // Jika sudah URL penuh, gunakan apa adanya
+                        if (Str::startsWith($value, ['http://', 'https://'])) {
+                            return $value;
+                        }
+
+                        // Jika sudah berupa path /storage, gunakan apa adanya
+                        if (Str::startsWith($value, ['/storage/', 'storage/'])) {
+                            return Str::startsWith($value, '/') ? $value : ('/' . $value);
+                        }
+
+                        // Bangun URL berdasarkan disk yang digunakan
+                        if (config('filesystems.default') === 'gcs') {
+                            $bucket = config('filesystems.disks.gcs.bucket');
+                            $path = ltrim($value, '/');
+                            return "https://storage.googleapis.com/{$bucket}/{$path}";
+                        }
+
+                        // Untuk disk 'public', susun URL ke symlink storage
+                        return '/storage/' . ltrim($value, '/');
+                    }),
+                TextColumn::make('name')->label('Nama')->searchable()->sortable(),
+                TextColumn::make('sekolah')->label('Sekolah')->limit(30)->searchable()->sortable(),
+                TextColumn::make('jenjang')->label('Jenjang')->badge()->sortable(),
+                TextColumn::make('tingkatan_sd')->label('Tingkat SD')
+                    ->formatStateUsing(fn($state, Peserta $record) => $record->jenjang === 'SD'
+                        ? ($state === 'rendah' ? 'Rendah (1–3)' : ($state === 'tinggi' ? 'Tinggi (4–6)' : '-'))
+                        : '-')
                     ->sortable(),
-                Tables\Columns\TextColumn::make('sekolah')
-                    ->label('Asal Sekolah')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('provinsi')
-                    ->label('Provinsi')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('kota')
-                    ->label('Kota/Kabupaten')
-                    ->searchable()
-                    ->sortable(),
-                Tables\Columns\TextColumn::make('nomor_whatsapp_orang_tua')
-                    ->label('No. WA Orang Tua')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('nomor_whatsapp_guru')
-                    ->label('No. WA Guru')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('email_guru')
-                    ->label('Email Guru')
-                    ->searchable(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Tanggal Daftar')
-                    ->dateTime('d M Y H:i')
-                    ->sortable(),
+                TextColumn::make('provinsi')->label('Provinsi')->sortable(),
+                TextColumn::make('kota')->label('Kota/Kab')->sortable(),
+                TextColumn::make('nisn')->label('NISN')->toggleable(),
             ])
             ->filters([
-                //
+                SelectFilter::make('jenjang')->options(['SD' => 'SD', 'SMP' => 'SMP', 'SMA' => 'SMA']),
+                SelectFilter::make('tingkatan_sd')->options(['rendah' => 'Rendah (1–3)', 'tinggi' => 'Tinggi (4–6)']),
             ])
             ->actions([
-                Tables\Actions\EditAction::make()
-                    ->successNotification(null)
-                    ->after(function ($record) {
-                        Notification::make()
-                            ->title('Updated')
-                            ->color('success')
-                            ->body("Data Peserta {$record->name} berhasil diubah!")
-                            ->success()
-                            ->duration(3000)
-                            ->send();
-                    }),
-                Tables\Actions\DeleteAction::make()
-                    ->successNotification(null)
-                    ->after(function ($record) {
-                        Notification::make()
-                            ->title('Deleted')
-                            ->color('danger')
-                            ->icon('heroicon-s-trash')
-                            ->iconColor('danger')
-                            ->body("Data Peserta {$record->name} berhasil dihapus!")
-                            ->success()
-                            ->duration(3000)
-                            ->send();
-                    }),
+                Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->defaultSort('name');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManagePesertas::route('/'),
+            'index' => Pages\ListPesertas::route('/'),
+            'create' => Pages\CreatePeserta::route('/create'),
+            'edit' => Pages\EditPeserta::route('/{record}/edit'),
         ];
     }
 }

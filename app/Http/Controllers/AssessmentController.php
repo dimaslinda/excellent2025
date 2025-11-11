@@ -6,7 +6,10 @@ use App\Models\Peserta;
 use App\Models\QuizSoal;
 use App\Models\QuizJawaban;
 use App\Models\QuizHasil;
+use App\Models\MinatSoal;
+use App\Models\MinatJawaban;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
@@ -14,11 +17,42 @@ use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Mail;
 use App\Mail\QuizResultMail;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class AssessmentController extends Controller
 {
     private const MAX_QUESTIONS = 30;
     private const LEARNING_STYLES = ['visual', 'auditori', 'kinestetik', 'readwrite'];
+
+    // Step 1: Pilih jenjang
+    public function jenjang()
+    {
+        return view('jenjang');
+    }
+
+    public function storeJenjang(Request $request)
+    {
+        $validated = $request->validate([
+            'jenjang' => 'required|in:SD,SMP,SMA',
+            'tingkatan_sd' => 'nullable|in:rendah,tinggi'
+        ], [
+            'jenjang.required' => 'Silakan pilih jenjang terlebih dahulu',
+            'jenjang.in' => 'Pilihan jenjang tidak valid',
+        ]);
+
+        // Jika SD maka tingkatan wajib
+        if ($validated['jenjang'] === 'SD' && empty($validated['tingkatan_sd'])) {
+            return back()->withErrors(['tingkatan_sd' => 'Silakan pilih tingkatan untuk jenjang SD'])->withInput();
+        }
+
+        session(['assessment_jenjang' => [
+            'jenjang' => $validated['jenjang'],
+            'tingkatan_sd' => $validated['jenjang'] === 'SD' ? ($validated['tingkatan_sd'] ?? null) : null,
+        ]]);
+
+        return redirect()->route('registrasi');
+    }
 
     public function index()
     {
@@ -54,18 +88,76 @@ class AssessmentController extends Controller
             return $this->showPreviousTestResult();
         }
 
-        $validator = $this->validateAnswers($request);
+        // Submit akhir: simpan Minat + Quiz sekaligus (jika keduanya tersedia)
+        $hasMinat = MinatSoal::where('is_active', true)->exists();
+        $jenjang = session('registrasi.jenjang');
+        $tingkatanSd = session('registrasi.tingkatan_sd');
+        $hasQuiz = QuizSoal::where('is_active', true)
+            ->when($jenjang, function ($q) use ($jenjang, $tingkatanSd) {
+                $q->where('jenjang', $jenjang);
+                if ($jenjang === 'SD' && $tingkatanSd) {
+                    $q->where('tingkatan_sd', $tingkatanSd);
+                }
+            })
+            ->exists();
+
+        $rules = [];
+        // Jika quiz tersedia, wajibkan jawaban quiz; jika tidak, hanya minat
+        if ($hasQuiz) {
+            $rules['jawaban'] = 'required|array';
+            $rules['jawaban.*'] = 'required|exists:quiz_jawabans,id';
+        }
+        if ($hasMinat) {
+            $rules['minat'] = 'required|array';
+            $rules['minat.*'] = 'required|exists:minat_jawabans,id';
+        }
+
+        $messages = [
+            'jawaban.required' => 'Silakan lengkapi semua jawaban pada bagian Quiz',
+            'jawaban.*.required' => 'Anda harus menjawab semua pertanyaan Quiz',
+            'jawaban.*.exists' => 'Jawaban Quiz tidak valid',
+        ];
+        if ($hasMinat) {
+            $messages['minat.required'] = 'Silakan lengkapi semua jawaban pada bagian Minat Belajar';
+            $messages['minat.*.required'] = 'Anda harus menjawab semua pertanyaan Minat Belajar';
+            $messages['minat.*.exists'] = 'Jawaban Minat Belajar tidak valid';
+        }
+        $validator = Validator::make($request->all(), $rules, $messages);
         if ($validator->fails()) {
             return $this->handleValidationError($validator);
         }
 
         try {
-            $skor = $this->calculateScores($request->jawaban);
-            $gayaBelajar = $this->determineLearningStyle($skor);
-            $hasil = $this->saveTestResult($gayaBelajar, $skor);
+            // Simpan ringkasan Minat di session (tidak ke DB)
+            if ($request->has('minat') && is_array($request->minat)) {
+                $minatIds = array_values($request->input('minat', []));
+                $minatJawabans = MinatJawaban::with('soal')->whereIn('id', $minatIds)->get();
+                $minatSummary = $minatJawabans->map(function ($j) {
+                    return [
+                        'pertanyaan' => $j->soal?->pertanyaan,
+                        'kode' => $j->kode,
+                        'label' => $j->label,
+                        'value' => $j->value,
+                    ];
+                })->toArray();
+                session(['minat_belajar' => $minatSummary]);
+            }
+
+            // Jika quiz tersedia, proses hasilnya dan simpan ke DB
+            $hasil = null;
+            $skor = null;
+            if ($hasQuiz) {
+                $skor = $this->calculateScores($request->jawaban);
+                $gayaBelajar = $this->determineLearningStyle($skor);
+                $hasil = $this->saveTestResult($gayaBelajar, $skor);
+            }
 
             // Tambahkan pesan sukses
-            session()->flash('success', 'Tes berhasil diselesaikan dan hasil telah dikirim ke email guru Anda.');
+            if ($hasQuiz) {
+                session()->flash('success', 'Jawaban berhasil dikirim. Hasil Quiz telah dikirim ke email guru Anda.');
+            } else {
+                session()->flash('success', 'Jawaban Minat Belajar berhasil disimpan.');
+            }
 
             // Langsung tampilkan halaman hasil tanpa redirect
             return $this->showTestResult($hasil, $skor);
@@ -86,6 +178,41 @@ class AssessmentController extends Controller
         }
 
         return $this->showPreviousTestResult();
+    }
+
+    public function downloadHasil()
+    {
+        if (!$this->isUserRegistered()) {
+            return $this->redirectToRegistration();
+        }
+
+        if (!$this->hasUserCompletedTest()) {
+            return redirect()->route('assessment')
+                ->with('error', 'Anda belum menyelesaikan test. Silakan lakukan test terlebih dahulu.');
+        }
+
+        $hasil = QuizHasil::where('peserta_id', session('registrasi.id'))
+            ->latest()
+            ->first();
+
+        $skor = [
+            'visual' => $hasil->skor_visual,
+            'auditori' => $hasil->skor_auditori,
+            'kinestetik' => $hasil->skor_kinestetik,
+            'readwrite' => $hasil->skor_readwrite,
+        ];
+
+        // Render PDF dengan opsi lengkap dan ukuran kertas A4 portrait
+        $pdf = Pdf::setOptions([
+            'isRemoteEnabled' => true,
+            'isHtml5ParserEnabled' => true,
+            'defaultFont' => 'DejaVu Sans',
+        ])->loadView('hasil_pdf', compact('hasil', 'skor'));
+
+        $pdf->setPaper('a4', 'portrait');
+
+        $filenameBase = session('registrasi.slug') ?: Str::slug(session('registrasi.name', 'hasil'));
+        return $pdf->download('hasil-' . $filenameBase . '.pdf');
     }
 
     public function store(Request $request)
@@ -143,13 +270,24 @@ class AssessmentController extends Controller
     }
 
     private function showQuizQuestions()
-    {   
-        // Get active questions with answers, randomize question order and limit to max questions
-        $soals = QuizSoal::with('jawaban')
-            ->where('is_active', true)
-            ->inRandomOrder()
-            ->take(self::MAX_QUESTIONS)
-            ->get();
+    {
+        // Filter soal berdasarkan jenjang yang dipilih
+        $jenjang = session('registrasi.jenjang');
+        $tingkatanSd = session('registrasi.tingkatan_sd');
+
+        $query = QuizSoal::with('jawaban')
+            ->where('is_active', true);
+
+        if ($jenjang) {
+            $query->where(function ($q) use ($jenjang, $tingkatanSd) {
+                $q->where('jenjang', $jenjang);
+                if ($jenjang === 'SD' && $tingkatanSd) {
+                    $q->where('tingkatan_sd', $tingkatanSd);
+                }
+            });
+        }
+
+        $soals = $query->inRandomOrder()->take(self::MAX_QUESTIONS)->get();
 
         // Randomize answer order for each question
         $soals->each(function ($soal) {
@@ -159,7 +297,18 @@ class AssessmentController extends Controller
             $soal->jawaban = $shuffledAnswers;
         });
 
-        return view('assessment', compact('soals'));
+        // Ambil pertanyaan Minat Belajar (global tanpa jenjang)
+        $minatQuery = MinatSoal::with(['jawaban' => function ($q) {
+            $q->where('is_active', true)->orderBy('urutan');
+        }])
+            ->where('is_active', true);
+        // Minat kini bersifat global; tidak perlu filter jenjang
+
+        $minatSoals = $minatQuery->orderBy('urutan')->get();
+
+        $hasQuiz = $soals->isNotEmpty();
+
+        return view('assessment', compact('soals', 'minatSoals', 'hasQuiz'));
     }
 
     private function validateAnswers(Request $request)
@@ -200,6 +349,8 @@ class AssessmentController extends Controller
             'skor_auditori' => $skor['auditori'],
             'skor_kinestetik' => $skor['kinestetik'],
             'skor_readwrite' => $skor['readwrite'],
+            // Simpan ringkasan Minat (jika ada) ke kolom JSON
+            'minat_summary' => session('minat_belajar'),
         ]);
 
         session(['hasil_quiz' => [
@@ -210,10 +361,10 @@ class AssessmentController extends Controller
         // Ambil data peserta
         $peserta = Peserta::find(session('registrasi.id'));
 
-        // Kirim email hasil quiz
+        // Kirim email hasil quiz, sertakan ringkasan Minat (dari session)
         try {
             Mail::to($peserta->email_guru)
-                ->send(new QuizResultMail($hasil, $peserta, $skor));
+                ->send(new QuizResultMail($hasil, $peserta, $skor, session('minat_belajar')));
         } catch (\Exception $e) {
             // Log error pengiriman email
             Log::error('Gagal mengirim email hasil quiz: ' . $e->getMessage());
@@ -237,6 +388,8 @@ class AssessmentController extends Controller
             'nomor_whatsapp_orang_tua' => 'required|string|max:20|regex:/^[0-9]+$/',
             'nomor_whatsapp_guru' => 'required|string|max:20|regex:/^[0-9]+$/',
             'email_guru' => 'required|email|max:255',
+            'nisn' => 'nullable|string|max:20',
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'name.required' => 'Nama siswa harus diisi',
             'sekolah.required' => 'Asal sekolah harus diisi',
@@ -250,6 +403,9 @@ class AssessmentController extends Controller
             'nomor_whatsapp_guru.regex' => 'Nomor WhatsApp guru harus berupa angka',
             'email_guru.required' => 'Email guru harus diisi',
             'email_guru.email' => 'Format email guru tidak valid',
+            'foto.image' => 'File foto harus berupa gambar',
+            'foto.mimes' => 'Format foto harus jpg, jpeg, png, atau webp',
+            'foto.max' => 'Ukuran foto maksimal 2MB',
         ]);
     }
 
@@ -269,30 +425,63 @@ class AssessmentController extends Controller
 
     private function createNewPeserta(Request $request): Peserta
     {
-        return Peserta::create([
+        // Buat Peserta terlebih dahulu tanpa menangani foto_path legacy
+        $peserta = Peserta::create([
             'name' => $request->name,
             'sekolah' => $request->sekolah,
+            'jenjang' => session('assessment_jenjang.jenjang'),
+            'tingkatan_sd' => session('assessment_jenjang.tingkatan_sd'),
             'provinsi' => Province::where('code', $request->provinsi)->first()->name,
             'kota' => City::where('code', $request->kota)->first()->name,
             'nomor_whatsapp_orang_tua' => $request->nomor_whatsapp_orang_tua,
             'nomor_whatsapp_guru' => $request->nomor_whatsapp_guru,
             'email_guru' => $request->email_guru,
+            'nisn' => $request->nisn,
         ]);
+
+        // Jika ada file foto, simpan ke koleksi 'photo' Spatie Media Library
+        if ($request->hasFile('foto')) {
+            try {
+                $peserta
+                    ->addMediaFromRequest('foto')
+                    ->toMediaCollection('photo');
+            } catch (\Throwable $e) {
+                // Log dan lanjutkan tanpa menggagalkan registrasi
+                Log::warning('Gagal menyimpan media foto peserta: ' . $e->getMessage());
+            }
+        }
+
+        return $peserta;
     }
 
     private function storeRegistrationInSession(Peserta $peserta): void
     {
+        // Ambil URL media dari koleksi 'photo' jika tersedia, fallback ke kolom legacy
+        $photoUrl = method_exists($peserta, 'getFirstMediaUrl')
+            ? $peserta->getFirstMediaUrl('photo')
+            : null;
+        if (!$photoUrl) {
+            $photoUrl = $peserta->foto_path; // fallback untuk data lama
+        }
+        // Avatar tidak lagi menggunakan konversi; gunakan foto asli
+        $avatarUrl = $photoUrl;
+
         session([
             'registrasi' => [
                 'id' => $peserta->id,
                 'name' => $peserta->name,
                 'slug' => $peserta->slug,
                 'sekolah' => $peserta->sekolah,
+                'jenjang' => $peserta->jenjang,
+                'tingkatan_sd' => $peserta->tingkatan_sd,
                 'provinsi' => $peserta->provinsi,
                 'kota' => $peserta->kota,
                 'nomor_whatsapp_orang_tua' => $peserta->nomor_whatsapp_orang_tua,
                 'nomor_whatsapp_guru' => $peserta->nomor_whatsapp_guru,
                 'email_guru' => $peserta->email_guru,
+                'nisn' => $peserta->nisn,
+                'foto_path' => $photoUrl,
+                'foto_avatar_path' => $avatarUrl,
             ]
         ]);
     }

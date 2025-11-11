@@ -6,8 +6,20 @@
                 <div class="bg-white p-6 rounded-lg shadow-lg max-w-xl w-full">
                     <h2 class="text-xl font-bold mb-10">Lengkapi Data Siswa di Bawah Ini:</h2>
 
-                    <form action="{{ route('assessment.store') }}" method="POST" class="font-poppins">
+                    <form action="{{ route('assessment.store') }}" method="POST" class="font-poppins" enctype="multipart/form-data">
                         @csrf
+                        <div class="mb-6 p-4 bg-gray-50 rounded">
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                    <p><strong>Jenjang:</strong> {{ session('assessment_jenjang.jenjang') }}</p>
+                                </div>
+                                <div>
+                                    @if (session('assessment_jenjang.jenjang') === 'SD')
+                                        <p><strong>Tingkatan SD:</strong> {{ session('assessment_jenjang.tingkatan_sd') == 'rendah' ? 'Rendah (Kelas 1–3)' : 'Tinggi (Kelas 4–6)' }}</p>
+                                    @endif
+                                </div>
+                            </div>
+                        </div>
                         <div class="mb-4">
                             <label class="block text-footer">Nama Siswa <span class="text-[#ff0000]">*</span></label>
                             <input type="text" name="name"
@@ -78,6 +90,24 @@
                                 class="w-full p-2 border rounded @error('email_guru') border-red-500 @enderror" required
                                 placeholder="Email Guru" value="{{ old('email_guru') }}">
                             @error('email_guru')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="block text-footer">NISN</label>
+                            <input type="text" name="nisn" class="w-full p-2 border rounded @error('nisn') border-red-500 @enderror"
+                                placeholder="Nomor Induk Siswa Nasional" value="{{ old('nisn') }}">
+                            @error('nisn')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+                        </div>
+
+                        <div class="mb-6">
+                            <label class="block text-footer">Upload Foto</label>
+                            <input type="file" name="foto" accept="image/*"
+                                class="w-full p-2 border rounded @error('foto') border-red-500 @enderror">
+                            @error('foto')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
                         </div>

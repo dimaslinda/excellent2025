@@ -3,72 +3,134 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\QuizSoalResource\Pages;
-use App\Filament\Resources\QuizSoalResource\RelationManagers;
+use App\Filament\Resources\QuizSoalResource\RelationManagers\JawabanRelationManager;
 use App\Models\QuizSoal;
 use Filament\Forms;
 use Filament\Forms\Form;
-use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
+use Filament\Resources\Resource;
+use Filament\Forms\Components\Select;
+use Filament\Forms\Components\Textarea;
+use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\Toggle;
+use Filament\Forms\Components\Repeater;
+use Filament\Forms\Components\Section;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
+use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ToggleColumn;
+use Filament\Tables\Columns\ImageColumn;
+use Filament\Tables\Filters\SelectFilter;
 
 class QuizSoalResource extends Resource
 {
     protected static ?string $model = QuizSoal::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
-
-    protected static ?string $navigationLabel = 'Quiz Gaya Belajar';
-
+    protected static ?string $navigationIcon = 'heroicon-o-clipboard-document-list';
+    protected static ?string $navigationLabel = 'Soal Quiz';
+    protected static ?string $pluralModelLabel = 'Soal Quiz';
     protected static ?string $modelLabel = 'Soal Quiz';
-
-    protected static ?string $pluralModelLabel = 'Soal-soal Quiz';
-
-    protected static ?string $navigationGroup = 'Manajemen Soal';
+    protected static ?string $navigationGroup = 'Assessment';
+    protected static ?int $navigationSort = 10;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
-                Forms\Components\TextInput::make('pertanyaan')
-                    ->label('Pertanyaan')
-                    ->required()
-                    ->maxLength(255),
-                Forms\Components\TextInput::make('urutan')
-                    ->label('Urutan')
-                    ->numeric()
-                    ->default(0),
-                Forms\Components\Toggle::make('is_active')
-                    ->label('Aktif')
-                    ->default(true),
-                Forms\Components\Section::make('Jawaban')
-                    ->description('Setiap jawaban akan mengarah ke salah satu gaya belajar')
+                Section::make('Detail Soal')
+                    ->description('Isi pertanyaan dan metadata. Tingkatan SD hanya muncul jika jenjang adalah SD.')
+                    ->columns(12)
                     ->schema([
-                        Forms\Components\Repeater::make('jawaban')
-                            ->relationship()
+                        Textarea::make('pertanyaan')
+                            ->label('Pertanyaan')
+                            ->required()
+                            ->rows(4)
+                            ->columnSpan(12),
+
+                        SpatieMediaLibraryFileUpload::make('image')
+                            ->label('Gambar (Opsional)')
+                            ->collection('quiz_soal_images')
+                            ->image()
+                            ->acceptedFileTypes(['image/*'])
+                            ->maxSize(10240)
+                            ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                            ->helperText('Opsional: unggah gambar pendukung untuk soal ini (Spatie Media Library).')
+                            ->columnSpan(12),
+
+                        Select::make('jenjang')
+                            ->options([
+                                'SD' => 'SD',
+                                'SMP' => 'SMP',
+                                'SMA' => 'SMA',
+                            ])
+                            ->required()
+                            ->reactive()
+                            ->helperText('Pilih jenjang pertanyaan.')
+                            ->afterStateUpdated(function (Forms\Set $set, $state) {
+                                if ($state !== 'SD') {
+                                    $set('tingkatan_sd', null);
+                                }
+                            })
+                            ->columnSpan(12),
+
+                        Select::make('tingkatan_sd')
+                            ->label('Tingkatan SD')
+                            ->options([
+                                'rendah' => 'Rendah (Kelas 1–3)',
+                                'tinggi' => 'Tinggi (Kelas 4–6)',
+                            ])
+                            ->visible(fn (Forms\Get $get) => $get('jenjang') === 'SD')
+                            ->nullable()
+                            ->columnSpan(12),
+
+                        // Urutan ditetapkan otomatis saat create; tidak perlu input manual
+
+                        Toggle::make('is_active')
+                            ->label('Aktif')
+                            ->default(true)
+                            ->inlineLabel(false)
+                            ->columnSpan(12),
+                    ]),
+
+                Section::make('Pilihan Jawaban')
+                    ->collapsible()
+                    ->collapsed(false)
+                    ->description('Tambah pilihan jawaban. Seret untuk mengurutkan; urutan tersimpan otomatis.')
+                    ->schema([
+                        Repeater::make('jawaban')
+                            ->label('Jawaban')
+                            ->relationship('jawaban')
+                            ->orderable('urutan')
+                            ->default([
+                                ['jawaban' => '', 'gaya_belajar' => null],
+                                ['jawaban' => '', 'gaya_belajar' => null],
+                                ['jawaban' => '', 'gaya_belajar' => null],
+                                ['jawaban' => '', 'gaya_belajar' => null],
+                            ])
+                            ->minItems(1)
+                            ->createItemButtonLabel('Tambah Jawaban')
+                            ->itemLabel(fn (array $state) => ($state['gaya_belajar'] ?? 'Jawaban'))
+                            ->columns(12)
                             ->schema([
-                                Forms\Components\TextInput::make('jawaban')
-                                    ->label('Jawaban')
-                                    ->required(),
-                                Forms\Components\Select::make('gaya_belajar')
+                                Textarea::make('jawaban')
+                                    ->label('Teks Jawaban')
+                                    ->rows(2)
+                                    ->placeholder('Contoh: Saya lebih mudah belajar lewat gambar/video')
+                                    ->required()
+                                    ->columnSpan(8),
+                                Select::make('gaya_belajar')
                                     ->label('Gaya Belajar')
                                     ->options([
-                                        'visual' => 'Visual (Belajar dengan melihat)',
-                                        'auditori' => 'Auditori (Belajar dengan mendengar)',
-                                        'kinestetik' => 'Kinestetik (Belajar dengan bergerak)',
-                                        'readwrite' => 'Read/Write (Belajar dengan membaca/menulis)',
+                                        'visual' => 'Visual',
+                                        'auditori' => 'Auditori',
+                                        'kinestetik' => 'Kinestetik',
+                                        'readwrite' => 'Read/Write',
                                     ])
-                                    ->required(),
-                                Forms\Components\TextInput::make('urutan')
-                                    ->label('Urutan')
-                                    ->numeric()
-                                    ->default(0),
-                            ])
-                            ->columns(3)
-                            ->minItems(2)
-                            ->maxItems(4)
-                    ])
+                                    ->required()
+                                    ->columnSpan(4),
+                                // Kolom 'urutan' diisi otomatis oleh orderable() berdasarkan posisi drag
+                            ]),
+                    ]),
             ]);
     }
 
@@ -76,50 +138,62 @@ class QuizSoalResource extends Resource
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('pertanyaan')
+                ImageColumn::make('image')
+                    ->label('Gambar')
+                    ->defaultImageUrl('/img/general/dummy.webp')
+                    ->getStateUsing(function ($record) {
+                        return method_exists($record, 'getFirstMediaUrl')
+                            ? $record->getFirstMediaUrl('quiz_soal_images')
+                            : null;
+                    }),
+                TextColumn::make('pertanyaan')
                     ->label('Pertanyaan')
-                    ->searchable()
-                    ->limit(50),
-                Tables\Columns\TextColumn::make('urutan')
+                    ->limit(80)
+                    ->wrap(),
+                TextColumn::make('jenjang')
+                    ->badge()
+                    ->label('Jenjang')
+                    ->sortable(),
+                TextColumn::make('tingkatan_sd')
+                    ->label('Tingkatan SD')
+                    ->formatStateUsing(fn ($state, QuizSoal $record) => $record->jenjang === 'SD'
+                        ? ($state === 'rendah' ? 'Rendah (Kelas 1–3)' : ($state === 'tinggi' ? 'Tinggi (Kelas 4–6)' : '-'))
+                        : '-')
+                    ->sortable(),
+                TextColumn::make('urutan')
                     ->label('Urutan')
                     ->sortable(),
-                Tables\Columns\IconColumn::make('is_active')
+                ToggleColumn::make('is_active')
                     ->label('Aktif')
-                    ->boolean(),
-                Tables\Columns\TextColumn::make('created_at')
-                    ->label('Dibuat')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
-                Tables\Columns\TextColumn::make('updated_at')
-                    ->label('Diperbarui')
-                    ->dateTime()
-                    ->sortable()
-                    ->toggleable(isToggledHiddenByDefault: true),
+                    ->sortable(),
             ])
             ->filters([
-                Tables\Filters\TernaryFilter::make('is_active')
-                    ->label('Status')
-                    ->placeholder('Semua')
-                    ->trueLabel('Aktif')
-                    ->falseLabel('Tidak Aktif'),
+                SelectFilter::make('jenjang')
+                    ->label('Jenjang')
+                    ->options([
+                        'SD' => 'SD',
+                        'SMP' => 'SMP',
+                        'SMA' => 'SMA',
+                    ]),
+                SelectFilter::make('tingkatan_sd')
+                    ->label('Tingkatan SD')
+                    ->options([
+                        'rendah' => 'Rendah (Kelas 1–3)',
+                        'tinggi' => 'Tinggi (Kelas 4–6)',
+                    ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
+                Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->defaultSort('urutan');
     }
 
     public static function getRelations(): array
     {
-        return [
-            //
-        ];
+        return [];
     }
 
     public static function getPages(): array

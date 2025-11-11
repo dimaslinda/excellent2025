@@ -3,125 +3,38 @@
 namespace App\Filament\Resources;
 
 use App\Filament\Resources\QuizHasilResource\Pages;
-use App\Filament\Resources\QuizHasilResource\RelationManagers;
 use App\Models\QuizHasil;
-use Filament\Forms;
-use Filament\Forms\Form;
 use Filament\Resources\Resource;
+use Filament\Infolists\Infolist;
+use Filament\Infolists\Components\Section as InfoSection;
+use Filament\Infolists\Components\TextEntry;
+use Filament\Infolists\Components\RepeatableEntry;
 use Filament\Tables;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\SoftDeletingScope;
-use Filament\Infolists;
-use Filament\Infolists\Infolist;
+use Filament\Tables\Columns\TextColumn;
 
 class QuizHasilResource extends Resource
 {
     protected static ?string $model = QuizHasil::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-academic-cap';
+    protected static ?string $navigationIcon = 'heroicon-o-chart-bar';
     protected static ?string $navigationLabel = 'Hasil Quiz';
-    protected static ?string $pluralModelLabel = 'Hasil Quiz Peserta';
+    protected static ?string $pluralModelLabel = 'Hasil Quiz';
     protected static ?string $modelLabel = 'Hasil Quiz';
-    protected static ?string $navigationGroup = 'Manajemen Soal';
-
-    public static function form(Form $form): Form
-    {
-        return $form
-            ->schema([
-                Forms\Components\Section::make('Data Peserta')
-                    ->schema([
-                        Forms\Components\Select::make('peserta_id')
-                            ->relationship('peserta', 'name')
-                            ->searchable()
-                            ->required()
-                            ->label('Nama Peserta'),
-                    ]),
-
-                Forms\Components\Section::make('Hasil Tes')
-                    ->schema([
-                        Forms\Components\Select::make('gaya_belajar')
-                            ->options([
-                                'visual' => 'Visual',
-                                'auditori' => 'Auditori',
-                                'kinestetik' => 'Kinestetik',
-                                'readwrite' => 'Read/Write',
-                            ])
-                            ->required()
-                            ->label('Gaya Belajar Dominan'),
-
-                        Forms\Components\Grid::make()
-                            ->schema([
-                                Forms\Components\TextInput::make('skor_visual')
-                                    ->numeric()
-                                    ->required()
-                                    ->label('Skor Visual'),
-
-                                Forms\Components\TextInput::make('skor_auditori')
-                                    ->numeric()
-                                    ->required()
-                                    ->label('Skor Auditori'),
-
-                                Forms\Components\TextInput::make('skor_kinestetik')
-                                    ->numeric()
-                                    ->required()
-                                    ->label('Skor Kinestetik'),
-
-                                Forms\Components\TextInput::make('skor_readwrite')
-                                    ->numeric()
-                                    ->required()
-                                    ->label('Skor Read/Write'),
-                            ])
-                            ->columns(2),
-                    ]),
-            ]);
-    }
+    protected static ?string $navigationGroup = 'Assessment';
+    protected static ?int $navigationSort = 12;
 
     public static function table(Table $table): Table
     {
         return $table
             ->columns([
-                Tables\Columns\TextColumn::make('peserta.name')
-                    ->searchable()
-                    ->sortable()
-                    ->label('Nama Peserta'),
-
-                Tables\Columns\TextColumn::make('peserta.sekolah')
-                    ->searchable()
-                    ->label('Asal Sekolah'),
-
-                Tables\Columns\TextColumn::make('gaya_belajar')
-                    ->badge()
-                    ->color(fn(string $state): string => match ($state) {
-                        'visual' => 'info',
-                        'auditori' => 'success',
-                        'kinestetik' => 'warning',
-                        'readwrite' => 'purple',
-                        default => 'gray',
-                    })
-                    ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                    ->label('Gaya Belajar'),
-
-                Tables\Columns\TextColumn::make('created_at')
-                    ->dateTime('d M Y H:i')
-                    ->sortable()
-                    ->label('Tanggal Test'),
-
-                Tables\Columns\TextColumn::make('skor_visual')
-                    ->sortable()
-                    ->label('Visual'),
-
-                Tables\Columns\TextColumn::make('skor_auditori')
-                    ->sortable()
-                    ->label('Auditori'),
-
-                Tables\Columns\TextColumn::make('skor_kinestetik')
-                    ->sortable()
-                    ->label('Kinestetik'),
-
-                Tables\Columns\TextColumn::make('skor_readwrite')
-                    ->sortable()
-                    ->label('Read/Write'),
+                TextColumn::make('peserta.name')->label('Peserta')->searchable()->sortable(),
+                TextColumn::make('gaya_belajar')->label('Gaya Belajar')->badge()->sortable(),
+                TextColumn::make('skor_visual')->label('Visual')->sortable(),
+                TextColumn::make('skor_auditori')->label('Auditori')->sortable(),
+                TextColumn::make('skor_kinestetik')->label('Kinestetik')->sortable(),
+                TextColumn::make('skor_readwrite')->label('Read/Write')->sortable(),
+                TextColumn::make('created_at')->label('Dibuat')->dateTime()->sortable(),
             ])
             ->filters([
                 Tables\Filters\SelectFilter::make('gaya_belajar')
@@ -130,53 +43,23 @@ class QuizHasilResource extends Resource
                         'auditori' => 'Auditori',
                         'kinestetik' => 'Kinestetik',
                         'readwrite' => 'Read/Write',
-                    ])
-                    ->label('Gaya Belajar'),
-
-                Tables\Filters\Filter::make('created_at')
-                    ->form([
-                        Forms\Components\DatePicker::make('created_from')
-                            ->label('Dari Tanggal'),
-                        Forms\Components\DatePicker::make('created_until')
-                            ->label('Sampai Tanggal'),
-                    ])
-                    ->query(function (Builder $query, array $data): Builder {
-                        return $query
-                            ->when(
-                                $data['created_from'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '>=', $date),
-                            )
-                            ->when(
-                                $data['created_until'],
-                                fn(Builder $query, $date): Builder => $query->whereDate('created_at', '<=', $date),
-                            );
-                    })
-                    ->label('Tanggal Test'),
+                    ]),
             ])
             ->actions([
                 Tables\Actions\ViewAction::make(),
-                Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])
             ->bulkActions([
-                Tables\Actions\BulkActionGroup::make([
-                    Tables\Actions\DeleteBulkAction::make(),
-                ]),
-            ]);
-    }
-
-    public static function getRelations(): array
-    {
-        return [
-            //
-        ];
+                Tables\Actions\DeleteBulkAction::make(),
+            ])
+            ->defaultSort('created_at', 'desc');
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ManageQuizHasils::route('/'),
-            // 'view' => Pages\ViewQuizHasil::route('/{record}'),
+            'index' => Pages\ListQuizHasils::route('/'),
+            'view' => Pages\ViewQuizHasil::route('/{record}'),
         ];
     }
 
@@ -184,72 +67,58 @@ class QuizHasilResource extends Resource
     {
         return $infolist
             ->schema([
-                Infolists\Components\Section::make('Data Peserta')
+                InfoSection::make('Profil Siswa')
+                    ->columns(2)
                     ->schema([
-                        Infolists\Components\TextEntry::make('peserta.name')
-                            ->label('Nama Peserta'),
-
-                        Infolists\Components\TextEntry::make('peserta.sekolah')
-                            ->label('Asal Sekolah'),
-
-                        Infolists\Components\TextEntry::make('peserta.provinsi')
-                            ->label('Provinsi'),
-
-                        Infolists\Components\TextEntry::make('peserta.kota')
-                            ->label('Kota/Kabupaten'),
-
-                        Infolists\Components\TextEntry::make('peserta.email_guru')
-                            ->label('Email Guru')
-                            ->copyable(),
-
-                        Infolists\Components\Grid::make(2)
-                            ->schema([
-                                Infolists\Components\TextEntry::make('peserta.nomor_whatsapp_guru')
-                                    ->label('WhatsApp Guru')
-                                    ->copyable()
-                                    ->url(fn($record) => "https://wa.me/{$record->peserta->nomor_whatsapp_guru}")
-                                    ->openUrlInNewTab(),
-
-                                Infolists\Components\TextEntry::make('peserta.nomor_whatsapp_orang_tua')
-                                    ->label('WhatsApp Orang Tua')
-                                    ->copyable()
-                                    ->url(fn($record) => "https://wa.me/{$record->peserta->nomor_whatsapp_orang_tua}")
-                                    ->openUrlInNewTab(),
-                            ]),
+                        TextEntry::make('peserta.name')->label('Nama') ,
+                        TextEntry::make('peserta.sekolah')->label('Sekolah'),
+                        TextEntry::make('peserta.jenjang')->label('Jenjang'),
+                        TextEntry::make('peserta.tingkatan_sd')->label('Tingkatan SD')
+                            ->formatStateUsing(fn ($state, $record) => ($record->peserta?->jenjang === 'SD') ? ($state ?: '-') : '-'),
+                        TextEntry::make('peserta.provinsi')->label('Provinsi'),
+                        TextEntry::make('peserta.kota')->label('Kota/Kabupaten'),
+                        TextEntry::make('peserta.nomor_whatsapp_orang_tua')->label('WA Orang Tua'),
+                        TextEntry::make('peserta.email_guru')->label('Email Guru'),
                     ]),
 
-                Infolists\Components\Section::make('Hasil Tes')
+                InfoSection::make('Hasil Quiz (Gaya Belajar)')
+                    ->columns(2)
                     ->schema([
-                        Infolists\Components\TextEntry::make('gaya_belajar')
-                            ->label('Gaya Belajar Dominan')
-                            ->formatStateUsing(fn(string $state): string => ucfirst($state))
-                            ->badge()
-                            ->color(fn(string $state): string => match ($state) {
+                        TextEntry::make('gaya_belajar')->label('Gaya Belajar')->badge()
+                            ->color(fn ($state) => match ($state) {
                                 'visual' => 'info',
-                                'auditori' => 'success',
-                                'kinestetik' => 'warning',
-                                'readwrite' => 'purple',
+                                'auditori' => 'warning',
+                                'kinestetik' => 'success',
+                                'readwrite' => 'primary',
                                 default => 'gray',
                             }),
+                        TextEntry::make('created_at')->label('Tanggal')->dateTime(),
+                        TextEntry::make('skor_visual')->label('Skor Visual'),
+                        TextEntry::make('skor_auditori')->label('Skor Auditori'),
+                        TextEntry::make('skor_kinestetik')->label('Skor Kinestetik'),
+                        TextEntry::make('skor_readwrite')->label('Skor Read/Write'),
+                    ]),
 
-                        Infolists\Components\Grid::make(2)
+                InfoSection::make('Ringkasan Minat Belajar')
+                    ->description('Ringkasan preferensi belajar sesuai pilihan siswa.')
+                    ->columns(1)
+                    ->visible(fn ($record) => !empty($record->minat_summary))
+                    ->schema([
+                        RepeatableEntry::make('minat_summary')
+                            ->label('Pilihan Minat')
                             ->schema([
-                                Infolists\Components\TextEntry::make('skor_visual')
-                                    ->label('Skor Visual'),
-
-                                Infolists\Components\TextEntry::make('skor_auditori')
-                                    ->label('Skor Auditori'),
-
-                                Infolists\Components\TextEntry::make('skor_kinestetik')
-                                    ->label('Skor Kinestetik'),
-
-                                Infolists\Components\TextEntry::make('skor_readwrite')
-                                    ->label('Skor Read/Write'),
-                            ]),
-
-                        Infolists\Components\TextEntry::make('created_at')
-                            ->label('Tanggal Test')
-                            ->dateTime('d M Y H:i'),
+                                TextEntry::make('pertanyaan')->label('Pertanyaan'),
+                                TextEntry::make('label')->label('Pilihan'),
+                                TextEntry::make('value')->label('Tingkat')->badge()
+                                    ->color(fn ($state) => match ($state) {
+                                        'tinggi' => 'success',
+                                        'sedang' => 'warning',
+                                        'rendah' => 'gray',
+                                        default => 'primary',
+                                    }),
+                            ])
+                            ->contained(false)
+                            ->columnSpanFull(),
                     ]),
             ]);
     }

@@ -119,6 +119,12 @@ class GeneralControllers extends Controller
 
     public function registrasi()
     {
+        // Pastikan jenjang sudah dipilih sebelum registrasi
+        if (!session()->has('assessment_jenjang')) {
+            return redirect()->route('assessment.jenjang')
+                ->with('error', 'Silakan pilih jenjang terlebih dahulu.');
+        }
+
         $provinces = Province::orderBy('name')->pluck('name', 'code');
         return view('registrasi', compact('provinces'));
     }

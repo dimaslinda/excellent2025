@@ -85,6 +85,42 @@
                 <td>: {{ $peserta->nomor_whatsapp_orang_tua }}</td>
             </tr>
         </table>
+        @if (!empty($minat))
+            <h3>Minat Belajar</h3>
+            <table>
+                @php
+                    $minatTitles = [
+                        'Saya lebih sering belajar menggunakan' => 'Perangkat belajar yang sering digunakan',
+                        'Saya paling nyaman belajar di' => 'Tempat belajar paling nyaman',
+                        'Tipe materi yang paling saya sukai' => 'Tipe materi favorit',
+                        'Cara belajar yang paling cocok untuk saya' => 'Cara belajar yang paling cocok',
+                        'Tujuan utama belajar saya saat ini' => 'Tujuan belajar saat ini',
+                        'Metode evaluasi yang paling saya sukai' => 'Metode evaluasi yang disukai',
+                        'Durasi sesi belajar ideal saya' => 'Durasi sesi belajar ideal',
+                        'Saya lebih mudah memahami materi ketika' => 'Kondisi belajar yang memudahkan',
+                        'Waktu belajar yang paling tersedia untuk saya' => 'Waktu belajar yang tersedia',
+                        'Media pencatatan favorit saya' => 'Media pencatatan favorit',
+                    ];
+                @endphp
+                @foreach ($minat as $m)
+                    @php
+                        $original = $m['pertanyaan'] ?? '';
+                        $clean = trim(rtrim($original, '.:…'));
+                        $title = $clean;
+                        foreach ($minatTitles as $needle => $friendly) {
+                            if (\Illuminate\Support\Str::contains($clean, $needle)) {
+                                $title = $friendly;
+                                break;
+                            }
+                        }
+                    @endphp
+                    <tr>
+                        <td style="width:55%"><strong>{{ $title }}</strong></td>
+                        <td>: {{ $m['label'] }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        @endif
         <h3>Gaya Belajar Dominan: <span style="color:#3498db">{{ ucfirst($hasil->gaya_belajar) }}</span></h3>
         <div>
             <span class="score-box">Visual: {{ $skor['visual'] }}</span>

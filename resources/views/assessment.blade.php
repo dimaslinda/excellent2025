@@ -85,14 +85,22 @@
                                                     <img src="{{ $minatImg }}" alt="Gambar pertanyaan" class="mb-3 w-full max-h-64 object-contain rounded">
                                                 @endif
                                                 <p class="text-sm text-gray-600 mb-3">{{ $mIndex + 1 }}. {{ $mSoal->pertanyaan }}</p>
-                                                <div class="space-y-2">
+                                                <div class="space-y-2" role="radiogroup" aria-labelledby="minat-q-{{ $mSoal->id }}-label">
                                                     @foreach ($mSoal->jawaban as $mJawaban)
-                                                        <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
-                                                            <input type="radio" name="minat[{{ $mSoal->id }}]" value="{{ $mJawaban->id }}" class="mr-3 text-headerbanner focus:ring-headerbanner">
-                                                            <span class="text-gray-700">{{ $mJawaban->kode }}. {{ $mJawaban->label }}</span>
-                                                        </label>
-                                                    @endforeach
-                                                </div>
+                                                        @php $answerImg = method_exists($mJawaban, 'getFirstMediaUrl') ? $mJawaban->getFirstMediaUrl('answer_images') : null; @endphp
+                                                        <label class="flex items-start gap-4 p-3 rounded cursor-pointer border border-gray-200 hover:bg-headerbanner/5 transition-colors focus:outline-none"
+                                                             data-group="minat" data-qid="{{ $mSoal->id }}" data-aid="{{ $mJawaban->id }}">
+                                                             <input type="radio" name="minat[{{ $mSoal->id }}]" value="{{ $mJawaban->id }}" hidden>
+                                                             <span class="inline-flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-full bg-gray-100 text-gray-800 font-semibold">{{ $mJawaban->kode }}</span>
+                                                            <div class="flex flex-col items-start text-left">
+                                                                @if ($answerImg)
+                                                                    <img src="{{ $answerImg }}" alt="" class="w-[6.25rem] h-[6.25rem] rounded object-cover shrink-0" />
+                                                                @endif
+                                                                <span class="text-gray-700 @if($answerImg) mt-2 @endif">{{ $mJawaban->label }}</span>
+                                                            </div>
+                                                          </label>
+                                                     @endforeach
+                                                 </div>
                                             </div>
                                         @endforeach
                                     </div>
@@ -103,6 +111,7 @@
                             <div class="flex justify-end">
                                 <button type="button" id="btnNextQuiz" class="px-5 py-2 rounded-full bg-headerbanner text-white hover:bg-footer transition-colors">Lanjut ke Quiz</button>
                             </div>
+                            <p id="minatError" class="text-red-600 text-sm mt-2 hidden">Silakan pilih jawaban untuk semua pertanyaan Minat.</p>
                         </div>
 
                         <!-- Step 2: Quiz (Gaya Belajar) -->
@@ -117,20 +126,28 @@
                                         <img src="{{ $quizImg }}" alt="Gambar pertanyaan" class="mb-3 w-full max-h-64 object-contain rounded">
                                     @endif
                                     <label class="block text-lg font-medium mb-2">{{ $index + 1 }}. {{ $soal->pertanyaan }}</label>
-                                    <div class="space-y-2">
+                                    <div class="space-y-2" role="radiogroup" aria-labelledby="quiz-q-{{ $soal->id }}-label">
                                         @foreach ($soal->jawaban as $jawaban)
-                                            <label class="flex items-center p-2 hover:bg-gray-50 rounded cursor-pointer">
-                                                <input type="radio" name="jawaban[{{ $soal->id }}]" value="{{ $jawaban->id }}" class="mr-3 text-headerbanner focus:ring-headerbanner">
-                                                <span class="text-gray-700">{{ $jawaban->jawaban }}</span>
-                                            </label>
-                                        @endforeach
-                                    </div>
+                                            @php $answerImg = method_exists($jawaban, 'getFirstMediaUrl') ? $jawaban->getFirstMediaUrl('answer_images') : null; @endphp
+                                            <label class="flex items-start gap-4 p-3 rounded cursor-pointer border border-gray-200 hover:bg-headerbanner/5 transition-colors focus:outline-none"
+                                                 data-group="quiz" data-qid="{{ $soal->id }}" data-aid="{{ $jawaban->id }}">
+                                                 <input type="radio" name="jawaban[{{ $soal->id }}]" value="{{ $jawaban->id }}" hidden>
+                                                <div class="flex flex-col items-start text-left">
+                                                    @if ($answerImg)
+                                                        <img src="{{ $answerImg }}" alt="" class="w-[6.25rem] h-[6.25rem] rounded object-cover shrink-0" />
+                                                    @endif
+                                                    <span class="text-gray-700 @if($answerImg) mt-2 @endif">{{ $jawaban->jawaban }}</span>
+                                                </div>
+                                             </label>
+                                         @endforeach
+                                     </div>
                                 </div>
                             @endforeach
                             <div class="flex items-center justify-between">
                                 <button type="button" id="btnBackMinat" class="px-5 py-2 rounded-full bg-white border text-gray-700 hover:bg-gray-50">Kembali ke Minat</button>
                                 <button type="submit" class="px-5 py-2 rounded-full bg-headerbanner text-white hover:bg-footer transition-colors" {{ $soals->isEmpty() && isset($minatSoals) && $minatSoals->isNotEmpty() ? '' : '' }}>Kirim Jawaban</button>
                             </div>
+                            <p id="quizError" class="text-red-600 text-sm mt-2 hidden">Masih ada pertanyaan Quiz yang belum dijawab.</p>
                         </div>
                     </form>
 
@@ -143,37 +160,107 @@
                             const progressBar = document.getElementById('progressBar');
                             const btnNextQuiz = document.getElementById('btnNextQuiz');
                             const btnBackMinat = document.getElementById('btnBackMinat');
+                            const minatError = document.getElementById('minatError');
+                            const quizError = document.getElementById('quizError');
+
+                            function updateProgress(){
+                                const minatInputs = document.querySelectorAll('input[name^="minat["]');
+                                const quizInputs = document.querySelectorAll('input[name^="jawaban["]');
+                                const totalQuestions = new Set(Array.from(minatInputs).map(i => i.name)).size + new Set(Array.from(quizInputs).map(i => i.name)).size;
+                                const answeredMinat = new Set(Array.from(minatInputs).filter(i => i.checked).map(i => i.name)).size;
+                                const answeredQuiz = new Set(Array.from(quizInputs).filter(i => i.checked).map(i => i.name)).size;
+                                const answered = answeredMinat + answeredQuiz;
+                                const pct = totalQuestions > 0 ? Math.round((answered / totalQuestions) * 100) : 0;
+                                progressBar.style.width = pct + '%';
+                            }
 
                             function setStep(step){
                                 if(step === 'minat'){
                                     stepMinat.classList.remove('hidden');
                                     stepQuiz.classList.add('hidden');
-                                    progressBar.style.width = '50%';
-                                    // Aktifkan Minat, pastikan tidak tertinggal kelas netral
                                     tabMinat.classList.remove('bg-white','text-gray-700');
                                     tabMinat.classList.add('bg-headerbanner','text-white','border-headerbanner');
-                                    // Nonaktifkan Quiz
                                     tabQuiz.classList.remove('bg-headerbanner','text-white','border-headerbanner');
                                     tabQuiz.classList.add('bg-white','text-gray-700');
                                 }else{
                                     stepQuiz.classList.remove('hidden');
                                     stepMinat.classList.add('hidden');
-                                    progressBar.style.width = '100%';
-                                    // Aktifkan Quiz, pastikan tidak tertinggal kelas netral
                                     tabQuiz.classList.remove('bg-white','text-gray-700');
                                     tabQuiz.classList.add('bg-headerbanner','text-white','border-headerbanner');
-                                    // Nonaktifkan Minat
                                     tabMinat.classList.remove('bg-headerbanner','text-white','border-headerbanner');
                                     tabMinat.classList.add('bg-white','text-gray-700');
                                 }
+                                updateProgress();
+                            }
+
+                            function attachOptionHandlers(){
+                                document.querySelectorAll('label[data-group][data-qid][data-aid]').forEach(label => {
+                                    label.addEventListener('click', (e) => {
+                                        const input = label.querySelector('input[type="radio"]');
+                                        if(!input) return;
+                                        input.checked = true;
+                                        const qid = label.getAttribute('data-qid');
+                                        // clear siblings highlight
+                                        document.querySelectorAll('label[data-qid="' + qid + '"]').forEach(sib => {
+                                            sib.classList.remove('border-headerbanner','bg-headerbanner/10');
+                                            sib.classList.add('border-gray-200');
+                                        });
+                                        // set selected highlight
+                                        label.classList.remove('border-gray-200');
+                                        label.classList.add('border-headerbanner','bg-headerbanner/10');
+                                        // hide any errors if now valid
+                                        if(label.getAttribute('data-group') === 'minat' && minatError){ minatError.classList.add('hidden'); }
+                                        if(label.getAttribute('data-group') === 'quiz' && quizError){ quizError.classList.add('hidden'); }
+                                        updateProgress();
+                                    });
+                                });
+                            }
+
+                            function validateStepMinat(){
+                                const names = new Set(Array.from(document.querySelectorAll('input[name^="minat["]')).map(i => i.name));
+                                for(const n of names){
+                                    if(!document.querySelector('input[name="' + n + '"]:checked')){
+                                        return false;
+                                    }
+                                }
+                                return true;
+                            }
+                            function validateStepQuiz(){
+                                const names = new Set(Array.from(document.querySelectorAll('input[name^="jawaban["]')).map(i => i.name));
+                                for(const n of names){
+                                    if(!document.querySelector('input[name="' + n + '"]:checked')){
+                                        return false;
+                                    }
+                                }
+                                return true;
                             }
 
                             tabMinat.addEventListener('click', ()=> setStep('minat'));
                             tabQuiz.addEventListener('click', ()=> setStep('quiz'));
-                            if(btnNextQuiz) btnNextQuiz.addEventListener('click', ()=> setStep('quiz'));
+                            if(btnNextQuiz) btnNextQuiz.addEventListener('click', ()=> {
+                                if(validateStepMinat()){
+                                    setStep('quiz');
+                                }else{
+                                    if(minatError) minatError.classList.remove('hidden');
+                                }
+                            });
                             if(btnBackMinat) btnBackMinat.addEventListener('click', ()=> setStep('minat'));
-                            // Inisialisasi agar kelas konsisten pada load
+
+                            // Prevent submit if quiz not complete
+                            const form = document.getElementById('assessmentForm');
+                            if(form){
+                                form.addEventListener('submit', (e)=>{
+                                    if(!validateStepQuiz()){
+                                        e.preventDefault();
+                                        if(quizError) quizError.classList.remove('hidden');
+                                        setStep('quiz');
+                                    }
+                                });
+                            }
+
+                            attachOptionHandlers();
                             setStep('minat');
+                            updateProgress();
                         })();
                     </script>
                 </div>

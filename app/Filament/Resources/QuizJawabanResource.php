@@ -12,7 +12,9 @@ use Filament\Resources\Resource;
 use Filament\Forms\Components\Textarea;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
+use Filament\Forms\Components\SpatieMediaLibraryFileUpload;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ImageColumn;
 
 class QuizJawabanResource extends Resource
 {
@@ -50,6 +52,13 @@ class QuizJawabanResource extends Resource
                         'readwrite' => 'Read/Write',
                     ])
                     ->required(),
+                SpatieMediaLibraryFileUpload::make('answer_images')
+                    ->label('Gambar Jawaban (Opsional)')
+                    ->collection('answer_images')
+                    ->image()
+                    ->acceptedFileTypes(['image/*'])
+                    ->maxSize(10240)
+                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public'),
                 TextInput::make('urutan')
                     ->numeric()
                     ->label('Urutan')
@@ -61,6 +70,14 @@ class QuizJawabanResource extends Resource
     {
         return $table
             ->columns([
+                ImageColumn::make('image')
+                    ->label('Gambar')
+                    ->defaultImageUrl('/img/general/dummy.webp')
+                    ->getStateUsing(function ($record) {
+                        return method_exists($record, 'getFirstMediaUrl')
+                            ? $record->getFirstMediaUrl('answer_images')
+                            : null;
+                    }),
                 TextColumn::make('soal.pertanyaan')
                     ->label('Soal')
                     ->limit(60)

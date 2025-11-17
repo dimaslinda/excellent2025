@@ -128,6 +128,14 @@ class QuizSoalResource extends Resource
                                     ])
                                     ->required()
                                     ->columnSpan(4),
+                                SpatieMediaLibraryFileUpload::make('answer_images')
+                                    ->label('Gambar Jawaban (Opsional)')
+                                    ->collection('answer_images')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/*'])
+                                    ->maxSize(10240)
+                                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                                    ->columnSpan(12),
                                 // Kolom 'urutan' diisi otomatis oleh orderable() berdasarkan posisi drag
                             ]),
                     ]),

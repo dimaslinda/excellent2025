@@ -104,6 +104,14 @@ class MinatSoalResource extends Resource
                                     ->placeholder('Contoh: device_mobile / place_home')
                                     ->required()
                                     ->columnSpan(2),
+                                SpatieMediaLibraryFileUpload::make('answer_images')
+                                    ->label('Gambar Jawaban (Opsional)')
+                                    ->collection('answer_images')
+                                    ->image()
+                                    ->acceptedFileTypes(['image/*'])
+                                    ->maxSize(10240)
+                                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                                    ->columnSpan(12),
                                 // Kolom 'urutan' disembunyikan; nilai mengikuti drag order
                                 Hidden::make('urutan')->default(0),
                                 Toggle::make('is_active')

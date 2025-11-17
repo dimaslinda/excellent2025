@@ -65,7 +65,7 @@ class PesertaResource extends Resource
                     ->label('Foto')
                     ->collection('photo')
                     ->image()
-                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                    ->disk('gcs')
                     ->helperText('Foto disimpan menggunakan Spatie Media Library.')
                     ->columnSpanFull(),
                 Toggle::make('is_dummy')->label('Dummy')->hidden(),

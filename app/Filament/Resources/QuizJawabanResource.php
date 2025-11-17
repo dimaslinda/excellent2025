@@ -58,7 +58,7 @@ class QuizJawabanResource extends Resource
                     ->image()
                     ->acceptedFileTypes(['image/*'])
                     ->maxSize(10240)
-                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public'),
+                    ->disk('gcs'),
                 TextInput::make('urutan')
                     ->numeric()
                     ->label('Urutan')
@@ -89,7 +89,7 @@ class QuizJawabanResource extends Resource
                 TextColumn::make('gaya_belajar')
                     ->label('Gaya Belajar')
                     ->badge()
-                    ->formatStateUsing(fn ($state) => match ($state) {
+                    ->formatStateUsing(fn($state) => match ($state) {
                         'visual' => 'Visual',
                         'auditori' => 'Auditori',
                         'kinestetik' => 'Kinestetik',

@@ -54,7 +54,7 @@ class MinatSoalResource extends Resource
                             ->image()
                             ->acceptedFileTypes(['image/*'])
                             ->maxSize(10240)
-                            ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                            ->disk('gcs')
                             ->helperText('Opsional: unggah gambar pendukung untuk pertanyaan ini (Spatie Media Library).')
                             ->columnSpan(2),
                         // Kolom 'urutan' disembunyikan dan diisi otomatis saat create
@@ -85,7 +85,7 @@ class MinatSoalResource extends Resource
                                 ['kode' => 'C', 'label' => '', 'value' => '', 'urutan' => 3, 'is_active' => true],
                                 ['kode' => 'D', 'label' => '', 'value' => '', 'urutan' => 4, 'is_active' => true],
                             ])
-                            ->itemLabel(fn (array $state) => ($state['kode'] ?? '-') . ' — ' . (($state['label'] ?? '') ?: 'Pilihan'))
+                            ->itemLabel(fn(array $state) => ($state['kode'] ?? '-') . ' — ' . (($state['label'] ?? '') ?: 'Pilihan'))
                             ->createItemButtonLabel('Tambah Jawaban')
                             ->columns(12)
                             ->schema([
@@ -141,8 +141,7 @@ class MinatSoalResource extends Resource
                 ToggleColumn::make('is_active')->label('Aktif'),
                 // Kolom urutan disembunyikan dari tampilan; gunakan drag untuk menyusun
             ])
-            ->filters([
-            ])
+            ->filters([])
             ->actions([
                 Tables\Actions\EditAction::make(),
             ])

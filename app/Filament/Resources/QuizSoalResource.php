@@ -53,7 +53,7 @@ class QuizSoalResource extends Resource
                             ->image()
                             ->acceptedFileTypes(['image/*'])
                             ->maxSize(10240)
-                            ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                            ->disk('gcs')
                             ->helperText('Opsional: unggah gambar pendukung untuk soal ini (Spatie Media Library).')
                             ->columnSpan(12),
 
@@ -79,7 +79,7 @@ class QuizSoalResource extends Resource
                                 'rendah' => 'Rendah (Kelas 1–3)',
                                 'tinggi' => 'Tinggi (Kelas 4–6)',
                             ])
-                            ->visible(fn (Forms\Get $get) => $get('jenjang') === 'SD')
+                            ->visible(fn(Forms\Get $get) => $get('jenjang') === 'SD')
                             ->nullable()
                             ->columnSpan(12),
 
@@ -109,7 +109,7 @@ class QuizSoalResource extends Resource
                             ])
                             ->minItems(1)
                             ->createItemButtonLabel('Tambah Jawaban')
-                            ->itemLabel(fn (array $state) => ($state['gaya_belajar'] ?? 'Jawaban'))
+                            ->itemLabel(fn(array $state) => ($state['gaya_belajar'] ?? 'Jawaban'))
                             ->columns(12)
                             ->schema([
                                 Textarea::make('jawaban')
@@ -134,7 +134,7 @@ class QuizSoalResource extends Resource
                                     ->image()
                                     ->acceptedFileTypes(['image/*'])
                                     ->maxSize(10240)
-                                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                                    ->disk('gcs')
                                     ->columnSpan(12),
                                 // Kolom 'urutan' diisi otomatis oleh orderable() berdasarkan posisi drag
                             ]),
@@ -164,7 +164,7 @@ class QuizSoalResource extends Resource
                     ->sortable(),
                 TextColumn::make('tingkatan_sd')
                     ->label('Tingkatan SD')
-                    ->formatStateUsing(fn ($state, QuizSoal $record) => $record->jenjang === 'SD'
+                    ->formatStateUsing(fn($state, QuizSoal $record) => $record->jenjang === 'SD'
                         ? ($state === 'rendah' ? 'Rendah (Kelas 1–3)' : ($state === 'tinggi' ? 'Tinggi (Kelas 4–6)' : '-'))
                         : '-')
                     ->sortable(),

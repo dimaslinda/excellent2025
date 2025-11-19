@@ -2,9 +2,8 @@
 
 namespace App\Filament\Resources;
 
-use App\Filament\Resources\MinatSoalResource\Pages;
-use App\Filament\Resources\MinatSoalResource\RelationManagers\JawabanRelationManager;
-use App\Models\MinatSoal;
+use App\Filament\Resources\ProfilSoalResource\Pages;
+use App\Models\ProfilSoal;
 use Filament\Forms;
 use Filament\Forms\Form;
 use Filament\Resources\Resource;
@@ -23,29 +22,29 @@ use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Filters\SelectFilter;
 
-class MinatSoalResource extends Resource
+class ProfilSoalResource extends Resource
 {
-    protected static ?string $model = MinatSoal::class;
+    protected static ?string $model = ProfilSoal::class;
 
-    protected static ?string $navigationIcon = 'heroicon-o-document-text';
-    protected static ?string $navigationLabel = 'Pertanyaan Minat';
-    protected static ?string $pluralModelLabel = 'Pertanyaan Minat';
-    protected static ?string $modelLabel = 'Pertanyaan Minat';
+    protected static ?string $navigationIcon = 'heroicon-o-user';
+    protected static ?string $navigationLabel = 'Profil Siswa';
+    protected static ?string $pluralModelLabel = 'Pertanyaan Profil Siswa';
+    protected static ?string $modelLabel = 'Pertanyaan Profil Siswa';
     protected static ?string $navigationGroup = 'Assessment';
-    protected static ?int $navigationSort = 4;
+    protected static ?int $navigationSort = 3;
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Detail Pertanyaan')
-                    ->description('Atur pertanyaan Minat, termasuk Jenjang (SD/SMP/SMA). Tingkatan SD opsional dan hanya tampil bila Jenjang = SD.')
+                    ->description('Atur pertanyaan Profil Siswa, struktur sama seperti Minat (bisa per jenjang, Tingkatan SD opsional).')
                     ->columns(2)
                     ->schema([
                         Textarea::make('pertanyaan')
                             ->label('Pertanyaan')
                             ->rows(3)
-                            ->placeholder('Tulis pertanyaan minat yang jelas dan ringkas')
+                            ->placeholder('Tulis pertanyaan profil siswa')
                             ->required()
                             ->columnSpan(2),
 
@@ -58,7 +57,7 @@ class MinatSoalResource extends Resource
                             ])
                             ->nullable()
                             ->reactive()
-                            ->helperText('Opsional: biarkan kosong untuk pertanyaan global (muncul di semua jenjang).')
+                            ->helperText('Opsional: kosongkan untuk pertanyaan global semua jenjang.')
                             ->afterStateUpdated(function (\Filament\Forms\Set $set, $state) {
                                 if ($state !== 'SD') {
                                     $set('tingkatan_sd', null);
@@ -74,24 +73,20 @@ class MinatSoalResource extends Resource
                             ])
                             ->visible(fn(\Filament\Forms\Get $get) => $get('jenjang') === 'SD')
                             ->nullable()
-                            ->helperText('Opsional: biarkan kosong agar berlaku untuk semua tingkatan SD.')
+                            ->helperText('Opsional: kosongkan agar berlaku untuk semua tingkatan SD.')
                             ->columnSpan(2),
+
                         SpatieMediaLibraryFileUpload::make('image')
                             ->label('Gambar (Opsional)')
-                            ->collection('minat_soal_images')
+                            ->collection('profil_soal_images')
                             ->image()
                             ->acceptedFileTypes(['image/*'])
                             ->maxSize(10240)
-                            ->disk('gcs')
-                            ->helperText('Opsional: unggah gambar pendukung untuk pertanyaan ini (Spatie Media Library).')
+                            ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                            ->helperText('Opsional: unggah gambar pendukung untuk pertanyaan ini.')
                             ->columnSpan(2),
-                        // Kolom 'urutan' disembunyikan dan diisi otomatis saat create
                         Hidden::make('urutan')->default(0),
-                        Toggle::make('is_active')
-                            ->label('Aktif')
-                            ->default(true)
-                            ->inline(false)
-                            ->columnSpan(2),
+                        Toggle::make('is_active')->label('Aktif')->default(true)->inline(false)->columnSpan(2),
                     ]),
 
                 Section::make('Pilihan Jawaban')
@@ -99,14 +94,12 @@ class MinatSoalResource extends Resource
                     ->collapsible()
                     ->collapsed(false)
                     ->schema([
-                        // Jawaban inline supaya pembuatan pertanyaan & jawaban jadi satu alur
                         Repeater::make('jawaban')
                             ->label('Jawaban')
                             ->relationship('jawaban')
                             ->orderable('urutan')
                             ->collapsed(false)
                             ->minItems(1)
-                            // Default 4 opsi (A–D), boleh dihapus/ditambah — tidak wajib persis 4
                             ->default([
                                 ['kode' => 'A', 'label' => '', 'value' => '', 'urutan' => 1, 'is_active' => true],
                                 ['kode' => 'B', 'label' => '', 'value' => '', 'urutan' => 2, 'is_active' => true],
@@ -117,21 +110,9 @@ class MinatSoalResource extends Resource
                             ->createItemButtonLabel('Tambah Jawaban')
                             ->columns(12)
                             ->schema([
-                                TextInput::make('kode')
-                                    ->label('Kode (A/B/C/D)')
-                                    ->maxLength(1)
-                                    ->required()
-                                    ->columnSpan(2),
-                                TextInput::make('label')
-                                    ->label('Label Jawaban')
-                                    ->placeholder('Contoh: Belajar dengan video/gambar')
-                                    ->required()
-                                    ->columnSpan(6),
-                                TextInput::make('value')
-                                    ->label('Nilai Hasil (disimpan)')
-                                    ->placeholder('Contoh: device_mobile / place_home')
-                                    ->required()
-                                    ->columnSpan(2),
+                                TextInput::make('kode')->label('Kode (A/B/C/D)')->maxLength(1)->required()->columnSpan(2),
+                                TextInput::make('label')->label('Label Jawaban')->required()->columnSpan(6),
+                                TextInput::make('value')->label('Nilai Hasil (disimpan)')->required()->columnSpan(2),
                                 SpatieMediaLibraryFileUpload::make('answer_images')
                                     ->label('Gambar Jawaban (Opsional)')
                                     ->collection('answer_images')
@@ -140,13 +121,8 @@ class MinatSoalResource extends Resource
                                     ->maxSize(10240)
                                     ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
                                     ->columnSpan(12),
-                                // Kolom 'urutan' disembunyikan; nilai mengikuti drag order
                                 Hidden::make('urutan')->default(0),
-                                Toggle::make('is_active')
-                                    ->label('Aktif')
-                                    ->default(true)
-                                    ->inline(false)
-                                    ->columnSpan(1),
+                                Toggle::make('is_active')->label('Aktif')->default(true)->inline(false)->columnSpan(1),
                             ]),
                     ]),
             ]);
@@ -162,37 +138,26 @@ class MinatSoalResource extends Resource
                     ->defaultImageUrl('/img/general/dummy.webp')
                     ->getStateUsing(function ($record) {
                         return method_exists($record, 'getFirstMediaUrl')
-                            ? $record->getFirstMediaUrl('minat_soal_images')
+                            ? $record->getFirstMediaUrl('profil_soal_images')
                             : null;
                     }),
                 TextColumn::make('pertanyaan')->label('Pertanyaan')->limit(80)->wrap(),
-                TextColumn::make('jenjang')
-                    ->label('Jenjang')
-                    ->badge()
-                    ->sortable(),
+                TextColumn::make('jenjang')->label('Jenjang')->badge()->sortable(),
                 TextColumn::make('tingkatan_sd')
                     ->label('Tingkatan SD')
-                    ->formatStateUsing(fn($state, \App\Models\MinatSoal $record) => $record->jenjang === 'SD'
+                    ->formatStateUsing(fn($state, \App\Models\ProfilSoal $record) => $record->jenjang === 'SD'
                         ? ($state === 'rendah' ? 'Rendah (Kelas 1–3)' : ($state === 'tinggi' ? 'Tinggi (Kelas 4–6)' : '-'))
                         : '-')
                     ->sortable(),
                 ToggleColumn::make('is_active')->label('Aktif'),
-                // Kolom urutan disembunyikan dari tampilan; gunakan drag untuk menyusun
             ])
             ->filters([
-                SelectFilter::make('jenjang')
-                    ->label('Jenjang')
-                    ->options([
-                        'SD' => 'SD',
-                        'SMP' => 'SMP',
-                        'SMA' => 'SMA',
-                    ]),
-                SelectFilter::make('tingkatan_sd')
-                    ->label('Tingkatan SD')
-                    ->options([
-                        'rendah' => 'Rendah (Kelas 1–3)',
-                        'tinggi' => 'Tinggi (Kelas 4–6)',
-                    ]),
+                SelectFilter::make('jenjang')->label('Jenjang')->options([
+                    'SD' => 'SD', 'SMP' => 'SMP', 'SMA' => 'SMA',
+                ]),
+                SelectFilter::make('tingkatan_sd')->label('Tingkatan SD')->options([
+                    'rendah' => 'Rendah (Kelas 1–3)', 'tinggi' => 'Tinggi (Kelas 4–6)',
+                ]),
             ])
             ->actions([
                 Tables\Actions\EditAction::make(),
@@ -205,16 +170,15 @@ class MinatSoalResource extends Resource
 
     public static function getRelations(): array
     {
-        // Gunakan Repeater di form utama; tidak perlu RelationManager terpisah
         return [];
     }
 
     public static function getPages(): array
     {
         return [
-            'index' => Pages\ListMinatSoals::route('/'),
-            'create' => Pages\CreateMinatSoal::route('/create'),
-            'edit' => Pages\EditMinatSoal::route('/{record}/edit'),
+            'index' => Pages\ListProfilSoals::route('/'),
+            'create' => Pages\CreateProfilSoal::route('/create'),
+            'edit' => Pages\EditProfilSoal::route('/{record}/edit'),
         ];
     }
 }

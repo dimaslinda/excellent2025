@@ -6,23 +6,25 @@
     <title>Hasil Tes Gaya Belajar</title>
     <style>
         @page {
-            margin: 12mm;
+            size: A4 portrait;
+            margin: 8mm;
         }
 
         body {
             font-family: DejaVu Sans, Arial, sans-serif;
-            font-size: 12px;
+            font-size: 10.5px;
+            line-height: 1.35;
             color: #111;
         }
 
         h1 {
-            font-size: 20px;
-            margin: 0 0 8px;
+            font-size: 18px;
+            margin: 0 0 6px;
         }
 
         h2 {
-            font-size: 16px;
-            margin: 0 0 8px;
+            font-size: 14px;
+            margin: 0 0 6px;
         }
 
         .container {
@@ -34,23 +36,23 @@
         }
 
         .mb-3 {
-            margin-bottom: 12px;
+            margin-bottom: 10px;
         }
 
         .mb-4 {
-            margin-bottom: 16px;
+            margin-bottom: 12px;
         }
 
         .small {
-            font-size: 11px;
+            font-size: 9.5px;
             color: #666;
         }
 
         .avatar {
-            width: 110px;
+            width: 90px;
             height: auto;
-            max-height: 130px;
-            border-radius: 8px;
+            max-height: 100px;
+            border-radius: 6px;
             border: 1px solid #ccc;
             display: block;
         }
@@ -58,7 +60,8 @@
         .card {
             border: 1px solid #e5e7eb;
             border-radius: 6px;
-            padding: 8px;
+            padding: 6px;
+            page-break-inside: avoid;
         }
 
         .label {
@@ -85,20 +88,20 @@
         }
 
         .scores td {
-            padding: 8px;
+            padding: 6px;
             border: 1px solid #e5e7eb;
             border-radius: 4px;
         }
 
         .bar-wrap {
             width: 100%;
-            height: 10px;
+            height: 8px;
             background: #e5e7eb;
             border-radius: 4px;
         }
 
         .bar {
-            height: 10px;
+            height: 8px;
             border-radius: 4px;
         }
 
@@ -125,11 +128,11 @@
 
         .minat-table td {
             width: 50%;
-            padding: 6px 10px;
+            padding: 4px 8px;
         }
 
-        .identity { margin-top: 6px; }
-        .identity td { padding: 3px 6px; }
+        .identity { margin-top: 4px; }
+        .identity td { padding: 2px 4px; }
         .footer {
             margin-top: 8px;
         }
@@ -152,6 +155,9 @@
             'Media pencatatan favorit saya' => 'Media pencatatan favorit',
         ];
         $minats = collect(session('minat_belajar') ?? [])
+            ->take(10)
+            ->values();
+        $profils = collect(session('profil_siswa') ?? [])
             ->take(10)
             ->values();
     @endphp
@@ -265,6 +271,32 @@
                 </ul>
             @endif
         </div>
+
+        @if ($profils->isNotEmpty())
+            <div class="card mb-3">
+                <h2>Ringkasan Profil Siswa</h2>
+                <table class="minat-table" cellspacing="0" cellpadding="0">
+                    @for ($i = 0; $i < $profils->count(); $i += 2)
+                        <tr>
+                            @for ($j = 0; $j < 2; $j++)
+                                @php $idx = $i + $j; @endphp
+                                <td>
+                                    @if ($idx < $profils->count())
+                                        @php
+                                            $p = $profils[$idx];
+                                            $original = $p['pertanyaan'] ?? '';
+                                            $clean = trim(rtrim($original, '.:…'));
+                                        @endphp
+                                        <span class="label">{{ $clean }}:</span>
+                                        <span class="value">{{ $p['label'] }}</span>
+                                    @endif
+                                </td>
+                            @endfor
+                        </tr>
+                    @endfor
+                </table>
+            </div>
+        @endif
 
         @if ($minats->isNotEmpty())
             <div class="card">

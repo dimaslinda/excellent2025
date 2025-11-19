@@ -67,6 +67,23 @@ class QuizHasilResource extends Resource
     {
         return $infolist
             ->schema([
+                InfoSection::make('Ringkasan Profil Siswa')
+                    ->description('Ringkasan jawaban Profil Siswa yang diisi peserta.')
+                    ->columns(1)
+                    ->visible(fn ($record) => !empty($record->profil_summary))
+                    ->schema([
+                        RepeatableEntry::make('profil_summary')
+                            ->label('Jawaban Profil')
+                            ->schema([
+                                TextEntry::make('pertanyaan')->label('Pertanyaan'),
+                                TextEntry::make('kode')->label('Kode')->badge(),
+                                TextEntry::make('label')->label('Pilihan'),
+                                TextEntry::make('value')->label('Nilai')->badge(),
+                            ])
+                            ->contained(false)
+                            ->columnSpanFull(),
+                    ]),
+
                 InfoSection::make('Profil Siswa')
                     ->columns(2)
                     ->schema([

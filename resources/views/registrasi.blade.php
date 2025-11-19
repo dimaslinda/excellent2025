@@ -69,7 +69,9 @@
                                     class="text-[#ff0000]">*</span></label>
                             <input type="text" name="nomor_whatsapp_orang_tua"
                                 class="w-full p-2 border rounded @error('nomor_whatsapp_orang_tua') border-red-500 @enderror"
-                                required placeholder="Nomor Orang Tua" value="{{ old('nomor_whatsapp_orang_tua') }}">
+                                required placeholder="Nomor Orang Tua" value="{{ old('nomor_whatsapp_orang_tua') }}"
+                                inputmode="numeric" pattern="[0-9]*" maxlength="20"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                             @error('nomor_whatsapp_orang_tua')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -79,7 +81,9 @@
                                     class="text-[#ff0000]">*</span></label>
                             <input type="text" name="nomor_whatsapp_guru"
                                 class="w-full p-2 border rounded @error('nomor_whatsapp_guru') border-red-500 @enderror"
-                                required placeholder="Nomor Whatsapp Guru" value="{{ old('nomor_whatsapp_guru') }}">
+                                required placeholder="Nomor Whatsapp Guru" value="{{ old('nomor_whatsapp_guru') }}"
+                                inputmode="numeric" pattern="[0-9]*" maxlength="20"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                             @error('nomor_whatsapp_guru')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror
@@ -97,7 +101,9 @@
                         <div class="mb-4">
                             <label class="block text-footer">NISN</label>
                             <input type="text" name="nisn" class="w-full p-2 border rounded @error('nisn') border-red-500 @enderror"
-                                placeholder="Nomor Induk Siswa Nasional" value="{{ old('nisn') }}">
+                                placeholder="Nomor Induk Siswa Nasional" value="{{ old('nisn') }}"
+                                inputmode="numeric" pattern="[0-9]*" maxlength="20"
+                                oninput="this.value=this.value.replace(/[^0-9]/g,'')">
                             @error('nisn')
                                 <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                             @enderror

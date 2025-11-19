@@ -8,6 +8,8 @@ use App\Models\QuizJawaban;
 use App\Models\QuizHasil;
 use App\Models\MinatSoal;
 use App\Models\MinatJawaban;
+use App\Models\ProfilSoal;
+use App\Models\ProfilJawaban;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
@@ -88,10 +90,50 @@ class AssessmentController extends Controller
             return $this->showPreviousTestResult();
         }
 
-        // Submit akhir: simpan Minat + Quiz sekaligus (jika keduanya tersedia)
-        $hasMinat = MinatSoal::where('is_active', true)->exists();
+        // Submit akhir: simpan Profil + Minat + Quiz sekaligus (sesuai ketersediaan)
+        // Minat & Profil mendukung jenjang: wajib hanya jika tersedia untuk jenjang/tingkatan yang dipilih
         $jenjang = session('registrasi.jenjang');
         $tingkatanSd = session('registrasi.tingkatan_sd');
+        $hasProfil = ProfilSoal::where('is_active', true)
+            ->when($jenjang, function ($q) use ($jenjang, $tingkatanSd) {
+                $q->where(function ($w) use ($jenjang, $tingkatanSd) {
+                    $w->whereNull('jenjang')
+                      ->orWhere(function ($q2) use ($jenjang, $tingkatanSd) {
+                          $q2->where('jenjang', $jenjang);
+                          if ($jenjang === 'SD') {
+                              $q2->where(function ($q3) use ($tingkatanSd) {
+                                  if ($tingkatanSd) {
+                                      $q3->whereNull('tingkatan_sd')
+                                         ->orWhere('tingkatan_sd', $tingkatanSd);
+                                  } else {
+                                      $q3->whereNull('tingkatan_sd');
+                                  }
+                              });
+                          }
+                      });
+                });
+            })
+            ->exists();
+        $hasMinat = MinatSoal::where('is_active', true)
+            ->when($jenjang, function ($q) use ($jenjang, $tingkatanSd) {
+                $q->where(function ($w) use ($jenjang, $tingkatanSd) {
+                    $w->whereNull('jenjang')
+                      ->orWhere(function ($q2) use ($jenjang, $tingkatanSd) {
+                          $q2->where('jenjang', $jenjang);
+                          if ($jenjang === 'SD') {
+                              $q2->where(function ($q3) use ($tingkatanSd) {
+                                  if ($tingkatanSd) {
+                                      $q3->whereNull('tingkatan_sd')
+                                         ->orWhere('tingkatan_sd', $tingkatanSd);
+                                  } else {
+                                      $q3->whereNull('tingkatan_sd');
+                                  }
+                              });
+                          }
+                      });
+                });
+            })
+            ->exists();
         $hasQuiz = QuizSoal::where('is_active', true)
             ->when($jenjang, function ($q) use ($jenjang, $tingkatanSd) {
                 $q->where('jenjang', $jenjang);
@@ -102,7 +144,11 @@ class AssessmentController extends Controller
             ->exists();
 
         $rules = [];
-        // Jika quiz tersedia, wajibkan jawaban quiz; jika tidak, hanya minat
+        // Wajibkan bagian yang tersedia
+        if ($hasProfil) {
+            $rules['profil'] = 'required|array';
+            $rules['profil.*'] = 'required|exists:profil_jawabans,id';
+        }
         if ($hasQuiz) {
             $rules['jawaban'] = 'required|array';
             $rules['jawaban.*'] = 'required|exists:quiz_jawabans,id';
@@ -113,6 +159,9 @@ class AssessmentController extends Controller
         }
 
         $messages = [
+            'profil.required' => 'Silakan lengkapi semua jawaban pada bagian Profil Siswa',
+            'profil.*.required' => 'Anda harus menjawab semua pertanyaan Profil Siswa',
+            'profil.*.exists' => 'Jawaban Profil Siswa tidak valid',
             'jawaban.required' => 'Silakan lengkapi semua jawaban pada bagian Quiz',
             'jawaban.*.required' => 'Anda harus menjawab semua pertanyaan Quiz',
             'jawaban.*.exists' => 'Jawaban Quiz tidak valid',
@@ -128,6 +177,21 @@ class AssessmentController extends Controller
         }
 
         try {
+            // Simpan ringkasan Profil Siswa di session
+            if ($request->has('profil') && is_array($request->profil)) {
+                $profilIds = array_values($request->input('profil', []));
+                $profilJawabans = ProfilJawaban::with('soal')->whereIn('id', $profilIds)->get();
+                $profilSummary = $profilJawabans->map(function ($j) {
+                    return [
+                        'pertanyaan' => $j->soal?->pertanyaan,
+                        'kode' => $j->kode,
+                        'label' => $j->label,
+                        'value' => $j->value,
+                    ];
+                })->toArray();
+                session(['profil_siswa' => $profilSummary]);
+            }
+
             // Simpan ringkasan Minat di session (tidak ke DB)
             if ($request->has('minat') && is_array($request->minat)) {
                 $minatIds = array_values($request->input('minat', []));
@@ -156,7 +220,7 @@ class AssessmentController extends Controller
             if ($hasQuiz) {
                 session()->flash('success', 'Jawaban berhasil dikirim. Hasil Quiz telah dikirim ke email guru Anda.');
             } else {
-                session()->flash('success', 'Jawaban Minat Belajar berhasil disimpan.');
+                session()->flash('success', 'Jawaban berhasil disimpan.');
             }
 
             // Langsung tampilkan halaman hasil tanpa redirect
@@ -297,18 +361,65 @@ class AssessmentController extends Controller
             $soal->jawaban = $shuffledAnswers;
         });
 
-        // Ambil pertanyaan Minat Belajar (global tanpa jenjang)
+        // Ambil pertanyaan Profil Siswa, mendukung filter Jenjang/Tingkatan SD
+        $profilQuery = ProfilSoal::with(['jawaban' => function ($q) {
+            $q->where('is_active', true)->orderBy('urutan');
+        }])
+            ->where('is_active', true);
+
+        if ($jenjang) {
+            $profilQuery->where(function ($q) use ($jenjang, $tingkatanSd) {
+                $q->whereNull('jenjang')
+                  ->orWhere(function ($q2) use ($jenjang, $tingkatanSd) {
+                      $q2->where('jenjang', $jenjang);
+                      if ($jenjang === 'SD') {
+                          $q2->where(function ($q3) use ($tingkatanSd) {
+                              if ($tingkatanSd) {
+                                  $q3->whereNull('tingkatan_sd')
+                                     ->orWhere('tingkatan_sd', $tingkatanSd);
+                              } else {
+                                  $q3->whereNull('tingkatan_sd');
+                              }
+                          });
+                      }
+                  });
+            });
+        }
+
+        $profilSoals = $profilQuery->orderBy('urutan')->get();
+
+        // Ambil pertanyaan Minat Belajar, mendukung filter Jenjang/Tingkatan SD
         $minatQuery = MinatSoal::with(['jawaban' => function ($q) {
             $q->where('is_active', true)->orderBy('urutan');
         }])
             ->where('is_active', true);
-        // Minat kini bersifat global; tidak perlu filter jenjang
+
+        if ($jenjang) {
+            $minatQuery->where(function ($q) use ($jenjang, $tingkatanSd) {
+                // Sertakan pertanyaan global (jenjang NULL) dan yang sesuai jenjang
+                $q->whereNull('jenjang')
+                  ->orWhere(function ($q2) use ($jenjang, $tingkatanSd) {
+                      $q2->where('jenjang', $jenjang);
+                      if ($jenjang === 'SD') {
+                          $q2->where(function ($q3) use ($tingkatanSd) {
+                              // Tingkatan SD opsional: NULL = semua tingkatan; atau spesifik
+                              if ($tingkatanSd) {
+                                  $q3->whereNull('tingkatan_sd')
+                                     ->orWhere('tingkatan_sd', $tingkatanSd);
+                              } else {
+                                  $q3->whereNull('tingkatan_sd');
+                              }
+                          });
+                      }
+                  });
+            });
+        }
 
         $minatSoals = $minatQuery->orderBy('urutan')->get();
 
         $hasQuiz = $soals->isNotEmpty();
 
-        return view('assessment', compact('soals', 'minatSoals', 'hasQuiz'));
+        return view('assessment', compact('soals', 'minatSoals', 'profilSoals', 'hasQuiz'));
     }
 
     private function validateAnswers(Request $request)
@@ -351,6 +462,8 @@ class AssessmentController extends Controller
             'skor_readwrite' => $skor['readwrite'],
             // Simpan ringkasan Minat (jika ada) ke kolom JSON
             'minat_summary' => session('minat_belajar'),
+            // Simpan ringkasan Profil Siswa (jika ada) ke kolom JSON
+            'profil_summary' => session('profil_siswa'),
         ]);
 
         session(['hasil_quiz' => [
@@ -361,10 +474,10 @@ class AssessmentController extends Controller
         // Ambil data peserta
         $peserta = Peserta::find(session('registrasi.id'));
 
-        // Kirim email hasil quiz, sertakan ringkasan Minat (dari session)
+        // Kirim email hasil quiz, sertakan ringkasan Minat & Profil (dari session)
         try {
             Mail::to($peserta->email_guru)
-                ->send(new QuizResultMail($hasil, $peserta, $skor, session('minat_belajar')));
+                ->send(new QuizResultMail($hasil, $peserta, $skor, session('minat_belajar'), session('profil_siswa')));
         } catch (\Exception $e) {
             // Log error pengiriman email
             Log::error('Gagal mengirim email hasil quiz: ' . $e->getMessage());
@@ -388,7 +501,7 @@ class AssessmentController extends Controller
             'nomor_whatsapp_orang_tua' => 'required|string|max:20|regex:/^[0-9]+$/',
             'nomor_whatsapp_guru' => 'required|string|max:20|regex:/^[0-9]+$/',
             'email_guru' => 'required|email|max:255',
-            'nisn' => 'nullable|string|max:20',
+            'nisn' => 'nullable|string|max:20|regex:/^[0-9]+$/',
             'foto' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
         ], [
             'name.required' => 'Nama siswa harus diisi',
@@ -403,6 +516,7 @@ class AssessmentController extends Controller
             'nomor_whatsapp_guru.regex' => 'Nomor WhatsApp guru harus berupa angka',
             'email_guru.required' => 'Email guru harus diisi',
             'email_guru.email' => 'Format email guru tidak valid',
+            'nisn.regex' => 'NISN harus berupa angka',
             'foto.image' => 'File foto harus berupa gambar',
             'foto.mimes' => 'Format foto harus jpg, jpeg, png, atau webp',
             'foto.max' => 'Ukuran foto maksimal 2MB',

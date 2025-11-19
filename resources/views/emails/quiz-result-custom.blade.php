@@ -60,7 +60,7 @@
 <body>
     <div class="container">
         <div style="text-align:center; margin-bottom: 24px;">
-            <img src="{{ asset('img/general/logoemail.png') }}" alt="Logo Excellent 2025" style="max-width:120px;">
+            <img src="{{ $message->embed(public_path('img/general/logoemail.png')) }}" alt="Logo Excellent 2025" style="max-width:120px;">
         </div>
         <h2>Hasil Tes Gaya Belajar</h2>
         <table>
@@ -85,6 +85,21 @@
                 <td>: {{ $peserta->nomor_whatsapp_orang_tua }}</td>
             </tr>
         </table>
+        @if (!empty($profil))
+            <h3>Profil Siswa</h3>
+            <table>
+                @foreach ($profil as $p)
+                    @php
+                        $original = $p['pertanyaan'] ?? '';
+                        $clean = trim(rtrim($original, '.:…'));
+                    @endphp
+                    <tr>
+                        <td style="width:55%"><strong>{{ $clean }}</strong></td>
+                        <td>: {{ $p['label'] }}</td>
+                    </tr>
+                @endforeach
+            </table>
+        @endif
         @if (!empty($minat))
             <h3>Minat Belajar</h3>
             <table>

@@ -16,13 +16,15 @@ class QuizResultMail extends Mailable
     public $peserta;
     public $skor;
     public $minat;
+    public $profil;
 
-    public function __construct($hasil, $peserta, $skor, $minat = [])
+    public function __construct($hasil, $peserta, $skor, $minat = [], $profil = [])
     {
         $this->hasil = $hasil;
         $this->peserta = $peserta;
         $this->skor = $skor;
         $this->minat = $minat;
+        $this->profil = $profil;
     }
 
     public function build()
@@ -34,6 +36,7 @@ class QuizResultMail extends Mailable
                 'peserta' => $this->peserta,
                 'skor' => $this->skor,
                 'minat' => $this->minat,
+                'profil' => $this->profil,
             ]);
     }
 }

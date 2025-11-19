@@ -45,6 +45,24 @@
                     </div>
                 </div>
 
+                @if (session('profil_siswa'))
+                    <div class="mb-8">
+                        <h2 class="text-xl font-semibold mb-4">Profil Siswa</h2>
+                        <div class="bg-gray-50 p-4 rounded space-y-2">
+                            @foreach (session('profil_siswa') as $profil)
+                                @php
+                                    $original = $profil['pertanyaan'] ?? '';
+                                    $clean = trim(rtrim($original, '.:…'));
+                                @endphp
+                                <p class="flex items-start">
+                                    <span class="text-gray-600 mr-2">{{ $clean }}:</span>
+                                    <span class="font-semibold text-gray-900">{{ $profil['label'] }}</span>
+                                </p>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+
                 @if (session('minat_belajar'))
                     <div class="mb-8">
                         <h2 class="text-xl font-semibold mb-4">Minat Belajar</h2>

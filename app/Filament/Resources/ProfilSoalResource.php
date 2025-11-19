@@ -82,7 +82,7 @@ class ProfilSoalResource extends Resource
                             ->image()
                             ->acceptedFileTypes(['image/*'])
                             ->maxSize(10240)
-                            ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                            ->disk('gcs')
                             ->helperText('Opsional: unggah gambar pendukung untuk pertanyaan ini.')
                             ->columnSpan(2),
                         Hidden::make('urutan')->default(0),
@@ -119,7 +119,7 @@ class ProfilSoalResource extends Resource
                                     ->image()
                                     ->acceptedFileTypes(['image/*'])
                                     ->maxSize(10240)
-                                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                                    ->disk('gcs')
                                     ->columnSpan(12),
                                 Hidden::make('urutan')->default(0),
                                 Toggle::make('is_active')->label('Aktif')->default(true)->inline(false)->columnSpan(1),
@@ -153,10 +153,13 @@ class ProfilSoalResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('jenjang')->label('Jenjang')->options([
-                    'SD' => 'SD', 'SMP' => 'SMP', 'SMA' => 'SMA',
+                    'SD' => 'SD',
+                    'SMP' => 'SMP',
+                    'SMA' => 'SMA',
                 ]),
                 SelectFilter::make('tingkatan_sd')->label('Tingkatan SD')->options([
-                    'rendah' => 'Rendah (Kelas 1–3)', 'tinggi' => 'Tinggi (Kelas 4–6)',
+                    'rendah' => 'Rendah (Kelas 1–3)',
+                    'tinggi' => 'Tinggi (Kelas 4–6)',
                 ]),
             ])
             ->actions([

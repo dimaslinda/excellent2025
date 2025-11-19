@@ -138,7 +138,7 @@ class MinatSoalResource extends Resource
                                     ->image()
                                     ->acceptedFileTypes(['image/*'])
                                     ->maxSize(10240)
-                                    ->disk(config('filesystems.default') === 'gcs' ? 'gcs' : 'public')
+                                    ->disk('gcs')
                                     ->columnSpan(12),
                                 // Kolom 'urutan' disembunyikan; nilai mengikuti drag order
                                 Hidden::make('urutan')->default(0),

@@ -9,6 +9,7 @@ Route::get('/', [GeneralControllers::class, 'index'])->name('beranda');
 Route::get('/inhouse', [GeneralControllers::class, 'inhouse'])->name('inhouse');
 Route::get('/modul', [GeneralControllers::class, 'modul'])->name('modul');
 Route::get('/ebook', [GeneralControllers::class, 'ebook'])->name('ebook');
+Route::get('/ebook/{ebook}', [GeneralControllers::class, 'showEbookDetail'])->name('ebook.detail');
 Route::get('/ebook/{ebook}/download', [GeneralControllers::class, 'downloadEbook'])->name('ebook.download');
 Route::get('/webinar', [GeneralControllers::class, 'webinar'])->name('webinar');
 Route::get('/ecourse', [GeneralControllers::class, 'ecourse'])->name('ecourse');

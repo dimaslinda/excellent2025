@@ -93,6 +93,11 @@ class GeneralControllers extends Controller
         return view('ebook', compact('ebooks'));
     }
 
+    public function showEbookDetail(Ebook $ebook)
+    {
+        return view('ebook-detail', compact('ebook'));
+    }
+
     public function downloadEbook(Ebook $ebook)
     {
         $media = $ebook->getFirstMedia('ebook_file');

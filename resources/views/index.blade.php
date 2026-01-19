@@ -78,6 +78,7 @@
                     <x-card-layanan src="img/general/bootcamp.webp" alt="bootcamp" title="Bootcamp" href="bootcamp" />
                     <x-card-layanan src="img/general/e-course.webp" alt="e-course" title="E-Course" href="ecourse" />
                     <x-card-layanan src="img/general/modul.webp" alt="modul" title="Modul" href="modul" />
+                    <x-card-layanan src="img/general/modul.webp" alt="e-book" title="E-Book" href="ebook" />
                     <x-card-layanan src="img/general/ekstrakulikuler.webp" alt="ekstrakulikuler" title="Ekstrakulikuler"
                         href="eskul" />
                     <x-card-layanan src="img/general/webinar.webp" alt="webinar" title="Webinar" href="wwebinar" />

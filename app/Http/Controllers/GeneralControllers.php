@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Modul;
 use App\Models\Ekskul;
+use App\Models\Ebook;
 use App\Models\Ecourse;
 use App\Models\Gallery;
 use App\Models\Webinar;
@@ -11,6 +12,8 @@ use App\Models\Bootcamp;
 use App\Models\Inhouse;
 use App\Models\Testimoni;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 use Laravolt\Indonesia\Models\Province;
 use Laravolt\Indonesia\Models\City;
 use GuzzleHttp\Promise;
@@ -78,6 +81,33 @@ class GeneralControllers extends Controller
     {
         $modulAjar = Modul::with('media')->get();
         return view('modul', compact('modulAjar'));
+    }
+
+    public function ebook()
+    {
+        $ebooks = Ebook::with('media')
+            ->where('is_published', true)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        return view('ebook', compact('ebooks'));
+    }
+
+    public function downloadEbook(Ebook $ebook)
+    {
+        $media = $ebook->getFirstMedia('ebook_file');
+
+        if (! $media) {
+            abort(404);
+        }
+
+        $filename = Str::slug($ebook->name) . '.pdf';
+
+        return response()->streamDownload(function () use ($media) {
+            echo Storage::disk($media->disk)->get($media->getPath());
+        }, $filename, [
+            'Content-Type' => $media->mime_type ?? 'application/pdf',
+        ]);
     }
 
     public function webinar()

@@ -3,7 +3,6 @@
 @section('banner')
     <section
         class="py-24 md:py-32 lg:pt-52 relative z-10 bg-[url('../../public/img/general/bg-modul.webp')] bg-no-repeat bg-cover bg-center">
-        <div class="absolute inset-0 bg-black bg-opacity-40"></div> {{-- Overlay for better text readability --}}
         <div class="container mx-auto px-4 relative z-20 text-center">
             <h1 class="font-bold leading-tight text-white" data-aos="fade-down" data-aos-duration="1000">
                 <span

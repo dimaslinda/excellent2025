@@ -32,3 +32,6 @@ jobs:
           exclude: |
             **/vendor/**
             **/node_modules/**
+            .git/**
+            .github/**
+            .env
